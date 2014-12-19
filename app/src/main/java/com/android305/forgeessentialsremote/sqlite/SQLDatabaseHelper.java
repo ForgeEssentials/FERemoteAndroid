@@ -32,7 +32,7 @@ public class SQLDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_SERVERS_UUID + " text not null, "
             + COLUMN_SERVERS_TOKEN + " text not null, "
             + COLUMN_SERVERS_AUTO_CONNECT + " integer not null, "
-            + COLUMN_SERVERS_TIMEOUT + " integer not null, "
+            + COLUMN_SERVERS_TIMEOUT + " integer not null"
             + ");";
     //@formatter:on
 

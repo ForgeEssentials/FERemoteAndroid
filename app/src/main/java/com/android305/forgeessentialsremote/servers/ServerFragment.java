@@ -82,6 +82,9 @@ public class ServerFragment extends Fragment implements AbsListView.OnItemClickL
             dataSource = new ServersDataSource(activity);
             dataSource.open();
             mAdapter = new ServerFragmentAdapter(getActivity(), dataSource.getAllServers());
+            if (mListView != null) {
+                mListView.setAdapter(mAdapter);
+            }
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
