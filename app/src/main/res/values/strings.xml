@@ -7,8 +7,26 @@
     <string name="title_about">About</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="action_example">Example action</string>
+    <string name="action_add_server">Add Server</string>
     <string name="action_settings">Settings</string>
-    <string name="no_servers_in_list">No servers added. Click on the plus icon to add one.</string>
+    <string name="no_servers_in_list">No servers found. Add one now!</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="txt_server_name">Server Name</string>
+    <string name="txt_ip_address">Host</string>
+    <string name="txt_hint_address">ip/domain:port</string>
+    <string name="txt_ssl">SSL</string>
+    <string name="txt_username">Username</string>
+    <string name="txt_hint_username">Optional if UUID supplied</string>
+    <string name="txt_uuid">UUID</string>
+    <string name="txt_hint_uuid">Optional if username supplied</string>
+    <string name="txt_token">Token*</string>
+    <string name="txt_hint_token">Password also accepted</string>
+    <string name="txt_token_warn">*-Token will be saved in clear text if no master password set.</string>
+    <string name="txt_auto_connect">Auto Connect</string>
+    <string name="txt_default">Default Server</string>
+    <string name="txt_timeout">Timeout</string>
+    <string name="default_timeout">3000</string>
+    <string name="field_required">This field is required.</string>
+    <string name="txt_invalid_ip">Invalid IP</string>
 
 </resources>

@@ -36,6 +36,28 @@ public class ServersDataSource {
         dbHelper.close();
     }
 
+    public Server createServer(Server server) {
+        ContentValues values = new ContentValues();
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_NAME, server.getServerName());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_IP, server.getServerIP());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_PORT, server.getPortNumber());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_SSL, server.isSSL() ? 1 : 0);
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_USERNAME, server.getUsername());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_UUID, server.getUUID());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_TOKEN, server.getToken());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_AUTO_CONNECT, server.isAutoConnect() ? 1 : 0);
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_TIMEOUT, server.getTimeout());
+        long insertId = database.insert(SQLDatabaseHelper.TABLE_SERVERS, null,
+                values);
+        Cursor cursor = database.query(SQLDatabaseHelper.TABLE_SERVERS,
+                allColumns, SQLDatabaseHelper.COLUMN_SERVERS_ID + " = " + insertId, null,
+                null, null, null);
+        cursor.moveToFirst();
+        Server newServer = cursorToServer(cursor);
+        cursor.close();
+        return newServer;
+    }
+
     public Server createServer(String name, String ip, int port, boolean ssl, String username, String uuid, String token, boolean autoConnect, int timeout) {
         ContentValues values = new ContentValues();
         values.put(SQLDatabaseHelper.COLUMN_SERVERS_NAME, name);
@@ -86,7 +108,7 @@ public class ServersDataSource {
         server.setServerName(cursor.getString(1));
         server.setServerIP(cursor.getString(2));
         server.setPortNumber(cursor.getInt(3));
-        server.setSsl(cursor.getInt(4) == 1);
+        server.setSSL(cursor.getInt(4) == 1);
         server.setUsername(cursor.getString(5));
         server.setUUID(cursor.getString(6));
         server.setToken(cursor.getString(7));

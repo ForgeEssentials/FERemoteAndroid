@@ -1,9 +1,13 @@
 package com.android305.forgeessentialsremote.servers;
 
+import android.content.SharedPreferences;
+
+import java.io.Serializable;
+
 /**
  * Created by Andres on 12/18/2014.
  */
-public class Server {
+public class Server implements Serializable {
 
     private long id;
     private String serverName;
@@ -56,6 +60,14 @@ public class Server {
         return false;
     }
 
+    public boolean isDefault(SharedPreferences manager) {
+        return manager.getFloat("defaultServer", -1) == getId();
+    }
+
+    public void setDefault(SharedPreferences manager) {
+        manager.edit().putLong("defaultServer", getId()).commit();
+    }
+
     public long getId() {
         return id;
     }
@@ -88,11 +100,11 @@ public class Server {
         this.portNumber = portNumber;
     }
 
-    public boolean isSsl() {
+    public boolean isSSL() {
         return ssl;
     }
 
-    public void setSsl(boolean ssl) {
+    public void setSSL(boolean ssl) {
         this.ssl = ssl;
     }
 
@@ -104,7 +116,7 @@ public class Server {
         this.username = username;
     }
 
-    public String getUuid() {
+    public String getUUID() {
         return uuid;
     }
 
@@ -138,5 +150,22 @@ public class Server {
 
     public void setTimeout(int timeout) {
         this.timeout = timeout;
+    }
+
+    @Override
+    public String toString() {
+        return "Server{" +
+                "id=" + id +
+                ", serverName='" + serverName + '\'' +
+                ", serverIP='" + serverIP + '\'' +
+                ", portNumber=" + portNumber +
+                ", ssl=" + ssl +
+                ", username='" + username + '\'' +
+                ", uuid='" + uuid + '\'' +
+                ", token='" + token + '\'' +
+                ", autoConnect=" + autoConnect +
+                ", timeout=" + timeout +
+                ", isConnected=" + isConnected +
+                '}';
     }
 }

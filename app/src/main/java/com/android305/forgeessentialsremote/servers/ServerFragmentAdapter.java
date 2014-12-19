@@ -1,7 +1,6 @@
 package com.android305.forgeessentialsremote.servers;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.android305.forgeessentialsremote.MainActivity;
 import com.android305.forgeessentialsremote.R;
 
 import java.util.List;
@@ -58,13 +58,37 @@ public class ServerFragmentAdapter extends ArrayAdapter<Server> {
                 name.setText(server.getServerName());
             }
             if (ip != null) {
+                boolean isDefault = server.isDefault(getContext().getSharedPreferences(MainActivity.PREFS, Context.MODE_PRIVATE));
                 String ipA = server.getServerIP();
                 int port = server.getPortNumber();
                 StringBuilder sb = new StringBuilder(ipA);
                 sb.append(":");
                 sb.append(port);
-                if (server.isSsl()) {
-                    sb.append(" (Secure)");
+                if (server.isSSL() || server.isConnected() || server.isAutoConnect() || isDefault) {
+                    boolean addComma = false;
+                    sb.append(" (");
+                    if (server.isSSL()) {
+                        sb.append("S");
+                        addComma = true;
+                    }
+                    if (server.isAutoConnect()) {
+                        if (addComma)
+                            sb.append(", ");
+                        addComma = true;
+                        sb.append("AC");
+                    }
+                    if (isDefault) {
+                        if (addComma)
+                            sb.append(", ");
+                        addComma = true;
+                        sb.append("Default");
+                    }
+                    if (server.isConnected()) {
+                        if (addComma)
+                            sb.append(", ");
+                        sb.append("Connected");
+                    }
+                    sb.append(")");
                 }
                 ip.setText(sb.toString());
             }

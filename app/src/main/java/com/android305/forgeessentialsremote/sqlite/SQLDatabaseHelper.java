@@ -28,8 +28,8 @@ public class SQLDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_SERVERS_IP + " text not null, "
             + COLUMN_SERVERS_PORT + " integer not null, "
             + COLUMN_SERVERS_SSL + " integer not null, "
-            + COLUMN_SERVERS_USERNAME + " text not null, "
-            + COLUMN_SERVERS_UUID + " text not null, "
+            + COLUMN_SERVERS_USERNAME + " text, "
+            + COLUMN_SERVERS_UUID + " text, "
             + COLUMN_SERVERS_TOKEN + " text not null, "
             + COLUMN_SERVERS_AUTO_CONNECT + " integer not null, "
             + COLUMN_SERVERS_TIMEOUT + " integer not null"
@@ -37,7 +37,7 @@ public class SQLDatabaseHelper extends SQLiteOpenHelper {
     //@formatter:on
 
     private static final String DATABASE_NAME = "feremote.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public SQLDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
