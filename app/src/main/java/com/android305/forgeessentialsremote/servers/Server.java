@@ -61,11 +61,15 @@ public class Server implements Serializable {
     }
 
     public boolean isDefault(SharedPreferences manager) {
-        return manager.getFloat("defaultServer", -1) == getId();
+        return manager.getLong("defaultServer", -1) == getId();
     }
 
-    public void setDefault(SharedPreferences manager) {
-        manager.edit().putLong("defaultServer", getId()).commit();
+    public void setDefault(SharedPreferences manager, boolean makeDefault) {
+        if (makeDefault) {
+            manager.edit().putLong("defaultServer", getId()).apply();
+        } else if (manager.getLong("defaultServer", -1) == getId()) {
+            manager.edit().remove("defaultServer").apply();
+        }
     }
 
     public long getId() {

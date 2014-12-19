@@ -1,6 +1,7 @@
 package com.android305.forgeessentialsremote.servers;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -11,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 
 import com.android305.forgeessentialsremote.MainActivity;
 import com.android305.forgeessentialsremote.R;
@@ -36,21 +36,16 @@ public class ServerAddFragment extends Fragment {
     private EditText serverName;
     private EditText ipAddressAndPort;
     private EditText username;
-    private EditText uuid;
     private EditText token;
     private EditText timeout;
     private CheckBox ssl;
     private CheckBox autoConnect;
     private CheckBox defaultServer;
-    private ProgressBar progress;
     private boolean edit = false;
+    private long id = 0;
+    private String uuid = null;
 
     public ServerAddFragment() {
-    }
-
-    public static ServerAddFragment newInstance() {
-        ServerAddFragment fragment = new ServerAddFragment();
-        return fragment;
     }
 
     public static ServerAddFragment newInstance(Server server, boolean edit) {
@@ -90,13 +85,11 @@ public class ServerAddFragment extends Fragment {
         serverName = find(v, R.id.serverName);
         ipAddressAndPort = find(v, R.id.ipAddress);
         username = find(v, R.id.username);
-        uuid = find(v, R.id.uuid);
         token = find(v, R.id.token);
         timeout = find(v, R.id.timeout);
         ssl = find(v, R.id.ssl);
         autoConnect = find(v, R.id.autoConnect);
         defaultServer = find(v, R.id.defaultServer);
-        progress = find(v, R.id.serverProgressBar);
         Bundle b = getArguments();
         if (b != null && b.containsKey("server.ser")) {
             try {
@@ -109,18 +102,18 @@ public class ServerAddFragment extends Fragment {
                 serverName.setText(s.getServerName());
                 ipAddressAndPort.setText(s.getServerIP() + ":" + s.getPortNumber());
                 username.setText(s.getUsername());
-                uuid.setText(s.getUUID());
                 token.setText(s.getToken());
                 timeout.setText(Integer.toString(s.getTimeout()));
                 ssl.setChecked(s.isSSL());
                 autoConnect.setChecked(s.isAutoConnect());
                 if (edit) {
-                    //TODO: Check if default server
-                    //TODO: Change plus icon to pencil icon
+                    id = s.getId();
+                    uuid = s.getUUID();
+                    if (s.isDefault(getActivity().getSharedPreferences(MainActivity.PREFS, Context.MODE_PRIVATE))) {
+                        defaultServer.setChecked(true);
+                    }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
@@ -155,19 +148,19 @@ public class ServerAddFragment extends Fragment {
             // decide what to show in the action bar.
             inflater.inflate(R.menu.server_add_fragment, menu);
             menu.findItem(R.id.action_settings).setVisible(false);
+            if (edit)
+                menu.findItem(R.id.action_add).setIcon(R.drawable.ic_action_edit);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
+        int menuId = item.getItemId();
+        switch (menuId) {
             case R.id.action_add:
-                progress.setVisibility(View.VISIBLE);
                 String serverNameTxt = serverName.getText().toString().trim();
                 String ipAddressAndPortTxt = ipAddressAndPort.getText().toString().trim();
                 String usernameTxt = username.getText().toString().trim();
-                String uuidTxt = uuid.getText().toString().trim();
                 String tokenTxt = token.getText().toString().trim();
                 String timeoutTxt = timeout.getText().toString().trim();
                 boolean isSSL = ssl.isChecked();
@@ -184,7 +177,7 @@ public class ServerAddFragment extends Fragment {
                 } else if (ipAddressAndPortTxt.length() == 0) {
                     ipAddressAndPort.setError(getActivity().getString(R.string.field_required));
                     ipAddressAndPort.requestFocus();
-                } else if (usernameTxt.length() == 0 && uuidTxt.length() == 0) {
+                } else if (usernameTxt.length() == 0) {
                     username.setError(getActivity().getString(R.string.field_required));
                     username.requestFocus();
                 } else if (tokenTxt.length() == 0) {
@@ -204,13 +197,13 @@ public class ServerAddFragment extends Fragment {
                         }
                     }
                     Server newServer = new Server();
+                    newServer.setId(id);
                     newServer.setServerName(serverNameTxt);
                     newServer.setServerIP(ip);
                     newServer.setPortNumber(port);
                     if (usernameTxt.length() > 0)
                         newServer.setUsername(usernameTxt);
-                    if (uuidTxt.length() > 0)
-                        newServer.setUUID(uuidTxt);
+                    newServer.setUUID(uuid);
                     newServer.setToken(tokenTxt);
                     try {
                         newServer.setTimeout(Integer.parseInt(timeoutTxt));
@@ -219,13 +212,8 @@ public class ServerAddFragment extends Fragment {
                     }
                     newServer.setSSL(isSSL);
                     newServer.setAutoConnect(isAutoConnect);
-                    if (!edit) {
-                        mListener.onServerAdd(newServer, isDefaultServer);
-                    } else {
-                        //TODO: Send update
-                    }
+                    mListener.onServerAction(newServer, isDefaultServer, edit);
                 }
-                progress.setVisibility(View.INVISIBLE);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -242,7 +230,7 @@ public class ServerAddFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        public boolean onServerAdd(Server serverToAdd, boolean makeDefault);
+        public boolean onServerAction(Server serverToAdd, boolean makeDefault, boolean edit);
     }
 
 }

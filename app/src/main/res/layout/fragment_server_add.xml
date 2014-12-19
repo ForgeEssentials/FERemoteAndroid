@@ -1,197 +1,161 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context=".MainActivity"
-             android:background="#ff303030"
-             android:clickable="true">
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity"
+    android:background="#ff303030"
+    android:clickable="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleHorizontal"
+    <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="-4dp"
-        android:indeterminate="true"
-        android:visibility="invisible"
-        android:layout_gravity="center_horizontal|top"
-        android:id="@+id/serverProgressBar"/>
+        android:layout_gravity="center"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:gravity="center">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:gravity="center">
-
-            <TableRow
-                android:gravity="center"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_marginRight="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/txt_server_name"/>
-
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:id="@+id/serverName"/>
-
-            </TableRow>
-
-            <TableRow
-                android:gravity="center"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_marginRight="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/txt_ip_address"/>
-
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/txt_hint_address"
-                    android:id="@+id/ipAddress"/>
-
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/txt_ssl"
-                    android:id="@+id/ssl"
-                    android:checked="false"/>
-            </TableRow>
-
-            <TableRow
-                android:gravity="center"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_marginRight="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/txt_username"/>
-
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/txt_hint_username"
-                    android:id="@+id/username"/>
-            </TableRow>
-
-            <TableRow
-                android:gravity="center"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_marginRight="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/txt_uuid"/>
-
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/txt_hint_uuid"
-                    android:id="@+id/uuid"/>
-            </TableRow>
-
-            <TableRow
-                android:gravity="center"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_marginRight="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/txt_token"/>
-
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/txt_hint_token"
-                    android:id="@+id/token"/>
-            </TableRow>
-
-            <TableRow
-                android:gravity="center"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_marginRight="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/txt_timeout"/>
-
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/timeout"
-                    android:inputType="number"
-                    android:text="@string/default_timeout"/>
-            </TableRow>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <CheckBox
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/txt_auto_connect"
-                    android:id="@+id/autoConnect"
-                    android:checked="false"/>
-
-                <CheckBox
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/txt_default"
-                    android:id="@+id/defaultServer"
-                    android:checked="false"/>
-            </LinearLayout>
+        <TableRow
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginRight="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/txt_token_warn"
-                android:textStyle="bold"/>
+                android:text="@string/txt_server_name"/>
 
-        </TableLayout>
-    </ScrollView>
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:id="@+id/serverName"/>
 
-</FrameLayout>
+        </TableRow>
+
+        <TableRow
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginRight="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/txt_ip_address"/>
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="@string/txt_hint_address"
+                android:id="@+id/ipAddress"/>
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/txt_ssl"
+                android:id="@+id/ssl"
+                android:checked="false"/>
+        </TableRow>
+
+        <TableRow
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginRight="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/txt_username"/>
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:id="@+id/username"/>
+        </TableRow>
+
+        <TableRow
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginRight="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/txt_token"/>
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="@string/txt_hint_token"
+                android:id="@+id/token"/>
+        </TableRow>
+
+        <TableRow
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginRight="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/txt_timeout"/>
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:id="@+id/timeout"
+                android:inputType="number"
+                android:text="@string/default_timeout"/>
+        </TableRow>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <CheckBox
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/txt_auto_connect"
+                android:id="@+id/autoConnect"
+                android:checked="false"/>
+
+            <CheckBox
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/txt_default"
+                android:id="@+id/defaultServer"
+                android:checked="false"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/txt_token_warn"
+            android:textStyle="bold"/>
+
+    </TableLayout>
+</ScrollView>

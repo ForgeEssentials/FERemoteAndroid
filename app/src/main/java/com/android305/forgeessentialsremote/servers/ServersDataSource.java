@@ -58,6 +58,27 @@ public class ServersDataSource {
         return newServer;
     }
 
+    public Server updateServer(Server server) {
+        ContentValues values = new ContentValues();
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_NAME, server.getServerName());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_IP, server.getServerIP());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_PORT, server.getPortNumber());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_SSL, server.isSSL() ? 1 : 0);
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_USERNAME, server.getUsername());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_UUID, server.getUUID());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_TOKEN, server.getToken());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_AUTO_CONNECT, server.isAutoConnect() ? 1 : 0);
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_TIMEOUT, server.getTimeout());
+        long id = database.update(SQLDatabaseHelper.TABLE_SERVERS, values, SQLDatabaseHelper.COLUMN_SERVERS_ID + " = " + server.getId(), new String[]{});
+        Cursor cursor = database.query(SQLDatabaseHelper.TABLE_SERVERS,
+                allColumns, SQLDatabaseHelper.COLUMN_SERVERS_ID + " = " + id, null,
+                null, null, null);
+        cursor.moveToFirst();
+        Server newServer = cursorToServer(cursor);
+        cursor.close();
+        return newServer;
+    }
+
     public Server createServer(String name, String ip, int port, boolean ssl, String username, String uuid, String token, boolean autoConnect, int timeout) {
         ContentValues values = new ContentValues();
         values.put(SQLDatabaseHelper.COLUMN_SERVERS_NAME, name);

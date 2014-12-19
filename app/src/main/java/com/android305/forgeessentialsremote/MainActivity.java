@@ -67,7 +67,7 @@ public class MainActivity extends ActionBarActivity
                 if (f == null || (!f.isVisible() && !f.isAdded())) {
                     Log.d("Fragments", "Adding Server List Fragment");
                     fragmentManager.beginTransaction()
-                            .replace(R.id.container, ServerListFragment.newInstance(), "server_list_fragment")
+                            .replace(R.id.container, new ServerListFragment(), "server_list_fragment")
                             .commit();
                 }
                 break;
@@ -122,24 +122,43 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void onFragmentInteraction(Server server, boolean longClick) {
-        //TODO: Open server screen or edit server on long click
+        if (longClick) {
+            showServerScreen(server, true);
+        } else {
+            //TODO: Open server screen
+        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null) {
+            String[] split = scanResult.getContents().split("@");
+            String[] secSplit = split[1].split("|");
+            String[] ipSplit = secSplit[0].split(":");
+            String username = split[0];
+            String host = ipSplit[0];
+            int port = Integer.parseInt(ipSplit[1]);
+            String token;
+            String serverName;
+            boolean ssl = false;
+            if (secSplit.length == 4) {
+                if (secSplit[1].equals("ssl"))
+                    ssl = true;
+                serverName = secSplit[2];
+                token = secSplit[3];
+            } else {
+                serverName = secSplit[1];
+                token = secSplit[2];
+            }
             Server server = new Server();
-            //TODO: handle qr contents
-            server.setServerName("Test Serializer");
-            server.setServerIP("localhost");
-            server.setPortNumber(1324);
-            server.setUsername("TestUser");
-            server.setUUID("TestUUID");
-            server.setToken("TestToken");
-            server.setAutoConnect(true);
-            server.setSSL(true);
-            showServerScreen(server);
+            server.setServerName(serverName);
+            server.setServerIP(host);
+            server.setPortNumber(port);
+            server.setUsername(username);
+            server.setToken(token);
+            server.setSSL(ssl);
+            showServerScreen(server, false);
         }
     }
 
@@ -149,11 +168,11 @@ public class MainActivity extends ActionBarActivity
             IntentIntegrator integrator = new IntentIntegrator(this);
             integrator.initiateScan();
         } else {
-            showServerScreen(null);
+            showServerScreen(null, false);
         }
     }
 
-    private void showServerScreen(Server server) {
+    private void showServerScreen(Server server, boolean edit) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment f = fragmentManager.findFragmentByTag("server_add_fragment");
         if (f == null || (!f.isVisible() && !f.isAdded())) {
@@ -161,9 +180,9 @@ public class MainActivity extends ActionBarActivity
             screen = 3;
             Fragment serverAddFragment;
             if (server == null) {
-                serverAddFragment = ServerAddFragment.newInstance();
+                serverAddFragment = new ServerAddFragment();
             } else {
-                serverAddFragment = ServerAddFragment.newInstance(server, false);
+                serverAddFragment = ServerAddFragment.newInstance(server, edit);
             }
             fragmentManager.beginTransaction().add(R.id.container, serverAddFragment, "server_add_fragment").addToBackStack(null)
                     .commit();
@@ -172,16 +191,19 @@ public class MainActivity extends ActionBarActivity
 
 
     @Override
-    public boolean onServerAdd(Server serverToAdd, boolean makeDefault) {
+    public boolean onServerAction(Server serverToAdd, boolean makeDefault, boolean edit) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         ServerListFragment listFragment = (ServerListFragment) fragmentManager.findFragmentByTag("server_list_fragment");
         Fragment f = fragmentManager.findFragmentByTag("server_add_fragment");
         ServersDataSource dataSource = new ServersDataSource(this);
         dataSource.open();
-        Server addedServer = dataSource.createServer(serverToAdd);
+        Server addedServer;
+        if (!edit)
+            addedServer = dataSource.createServer(serverToAdd);
+        else
+            addedServer = dataSource.updateServer(serverToAdd);
         if (addedServer != null) {
-            if (makeDefault)
-                addedServer.setDefault(getSharedPreferences(MainActivity.PREFS, MODE_PRIVATE));
+            addedServer.setDefault(getSharedPreferences(MainActivity.PREFS, MODE_PRIVATE), makeDefault);
             listFragment.refresh();
             fragmentManager.beginTransaction().detach(f).commit();
             dataSource.close();

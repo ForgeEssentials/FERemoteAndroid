@@ -48,13 +48,6 @@ public class ServerListFragment extends ListFragment implements AbsListView.OnIt
     public ServerListFragment() {
     }
 
-    public static ServerListFragment newInstance() {
-        ServerListFragment fragment = new ServerListFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
