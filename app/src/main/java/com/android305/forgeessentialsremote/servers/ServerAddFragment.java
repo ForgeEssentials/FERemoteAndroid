@@ -16,12 +16,9 @@ import android.widget.TableRow;
 
 import com.android305.forgeessentialsremote.MainActivity;
 import com.android305.forgeessentialsremote.R;
+import com.android305.forgeessentialsremote.servers.active.Server;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,11 +50,8 @@ public class ServerAddFragment extends Fragment {
         ServerAddFragment fragment = new ServerAddFragment();
         Bundle args = new Bundle();
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(server);
-            oos.close();
-            args.putByteArray("server.ser", baos.toByteArray());
+            byte[] s = server.serialize();
+            args.putByteArray("server.ser", s);
             args.putBoolean("edit", edit);
         } catch (IOException e) {
             e.printStackTrace();
@@ -95,10 +89,7 @@ public class ServerAddFragment extends Fragment {
         if (b != null && b.containsKey("server.ser")) {
             try {
                 byte[] data = b.getByteArray("server.ser");
-                ObjectInputStream ois = new ObjectInputStream(
-                        new ByteArrayInputStream(data));
-                Server s = (Server) ois.readObject();
-                ois.close();
+                Server s = Server.getServerFromSerializedBytes(data);
                 edit = b.getBoolean("edit");
                 serverName.setText(s.getServerName());
                 ipAddressAndPort.setText(s.getServerIP() + ":" + s.getPortNumber());
@@ -148,7 +139,6 @@ public class ServerAddFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.server_add_fragment, menu);
-        menu.findItem(R.id.action_settings).setVisible(false);
         if (edit)
             menu.findItem(R.id.action_add).setIcon(R.drawable.ic_action_edit);
     }

@@ -7,6 +7,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.android305.forgeessentialsremote.servers.active.Server;
 import com.android305.forgeessentialsremote.sqlite.SQLDatabaseHelper;
 
 import java.util.ArrayList;
@@ -99,6 +100,16 @@ public class ServersDataSource {
         Server newServer = cursorToServer(cursor);
         cursor.close();
         return newServer;
+    }
+
+    public Server getServer(long id) {
+        Cursor cursor = database.query(SQLDatabaseHelper.TABLE_SERVERS,
+                allColumns, SQLDatabaseHelper.COLUMN_SERVERS_ID + " = " + id, null,
+                null, null, null);
+        cursor.moveToFirst();
+        Server server = cursorToServer(cursor);
+        cursor.close();
+        return server;
     }
 
     public void deleteServer(Server server) {

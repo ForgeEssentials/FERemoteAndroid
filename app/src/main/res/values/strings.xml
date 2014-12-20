@@ -2,9 +2,9 @@
 <resources>
 
     <string name="app_name">FE Remote</string>
-    <string name="title_server_list">Server List</string>
-    <string name="title_settings">Settings</string>
-    <string name="title_about">About</string>
+
+    <!-- Main Activity -->
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_add_server">Add Server</string>
@@ -29,5 +29,26 @@
     <string name="field_required">This field is required.</string>
     <string name="txt_invalid_ip">Invalid IP</string>
     <string name="malformed_qr_code">Malformed qr code. Try again.</string>
+    <string name="title_activity_active_server">ActiveServer</string>
+
+
+    <!-- Active Server Activity -->
+
+    <string name="drawer_server_information">Server Information</string>
+    <string name="drawer_player_list">Player List</string>
+    <string name="drawer_chat">Chat</string>
+    <string name="drawer_console">Console</string>
+    <string name="drawer_permissions">Permissions</string>
+    <string name="active_player_name">Username</string>
+    <string name="active_player_uuid">UUID</string>
+    <string name="active_player_location_x">X</string>
+    <string name="active_player_location_y">Y</string>
+    <string name="active_player_location_z">Z</string>
+    <string name="active_player_location_dim">Dim</string>
+    <string name="active_player_health">Health</string>
+    <string name="active_player_armor">Armor</string>
+    <string name="active_player_hunger">Hunger</string>
+    <string name="active_player_saturation">Saturation</string>
+    <string name="active_player_n_a">n/a</string>
 
 </resources>

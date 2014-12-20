@@ -6,11 +6,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.android305.forgeessentialsremote.servers.Server;
+import com.android305.forgeessentialsremote.servers.active.Server;
 import com.android305.forgeessentialsremote.servers.ServerAddFragment;
 import com.android305.forgeessentialsremote.servers.ServerListFragment;
 import com.android305.forgeessentialsremote.servers.ServersDataSource;
@@ -53,27 +51,13 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.action_settings:
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onFragmentInteraction(Server server, boolean longClick) {
         if (longClick) {
             showServerScreen(server, true);
         } else {
-            //TODO: Open server screen
+            Intent i = new Intent(this, ActiveServer.class);
+            i.putExtra("server.id", server.getId());
+            startActivity(i);
         }
     }
 
@@ -94,6 +78,8 @@ public class MainActivity extends ActionBarActivity
                     server.setToken(m.group(5));
                     server.setSSL(ssl != null && ssl.equalsIgnoreCase("ssl"));
                     showServerScreen(server, false);
+                } else {
+                    Toast.makeText(this, getString(R.string.malformed_qr_code), Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
                 e.printStackTrace();

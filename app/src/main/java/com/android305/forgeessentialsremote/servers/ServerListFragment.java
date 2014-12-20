@@ -8,9 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android305.forgeessentialsremote.R;
+import com.android305.forgeessentialsremote.servers.active.Server;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
@@ -23,7 +25,7 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
  * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
  * interface.
  */
-public class ServerListFragment extends ListFragment implements AbsListView.OnItemClickListener, AbsListView.OnItemLongClickListener {
+public class ServerListFragment extends ListFragment implements AdapterView.OnItemLongClickListener {
 
     private ServersDataSource dataSource;
     private FloatingActionsMenu addServerMenu;
@@ -65,7 +67,6 @@ public class ServerListFragment extends ListFragment implements AbsListView.OnIt
         mListView.setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
-        mListView.setOnItemClickListener(this);
         mListView.setOnItemLongClickListener(this);
 
         addServerMenu = (FloatingActionsMenu) view.findViewById(R.id.add_server_menu);
@@ -114,9 +115,9 @@ public class ServerListFragment extends ListFragment implements AbsListView.OnIt
         dataSource.close();
     }
 
-
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
@@ -147,7 +148,6 @@ public class ServerListFragment extends ListFragment implements AbsListView.OnIt
             ((TextView) emptyView).setText(emptyText);
         }
     }
-
 
 
     /**

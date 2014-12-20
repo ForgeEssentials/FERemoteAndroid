@@ -1,7 +1,12 @@
-package com.android305.forgeessentialsremote.servers;
+package com.android305.forgeessentialsremote.servers.active;
 
 import android.content.SharedPreferences;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
@@ -50,13 +55,21 @@ public class Server implements Serializable {
         this.timeout = timeout;
     }
 
+    public static Server getServerFromSerializedBytes(byte[] server) throws IOException, ClassNotFoundException {
+        ObjectInputStream ois = new ObjectInputStream(
+                new ByteArrayInputStream(server));
+        Server s = (Server) ois.readObject();
+        ois.close();
+        return s;
+    }
+
     public boolean connect() {
-        //TODO: Connect Session.
+        //TODO: Connect Session by using the ServerConnection class statically.
         return false;
     }
 
     public boolean ping() {
-        //TODO: PONG
+        //TODO: PONG by using the ServerConnection class statically.
         return false;
     }
 
@@ -171,5 +184,13 @@ public class Server implements Serializable {
                 ", timeout=" + timeout +
                 ", isConnected=" + isConnected +
                 '}';
+    }
+
+    public byte[] serialize() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(this);
+        oos.close();
+        return baos.toByteArray();
     }
 }
