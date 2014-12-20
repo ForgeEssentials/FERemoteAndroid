@@ -110,7 +110,8 @@
         <TableRow
             android:gravity="center"
             android:layout_width="0dp"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:id="@+id/timeout_row">
 
             <TextView
                 android:layout_gravity="end|center_vertical"

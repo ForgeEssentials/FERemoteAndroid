@@ -25,8 +25,9 @@
     <string name="txt_auto_connect">Auto Connect</string>
     <string name="txt_default">Default Server</string>
     <string name="txt_timeout">Timeout</string>
-    <string name="default_timeout">3000</string>
+    <string name="default_timeout">15000</string>
     <string name="field_required">This field is required.</string>
     <string name="txt_invalid_ip">Invalid IP</string>
+    <string name="malformed_qr_code">Malformed qr code. Try again.</string>
 
 </resources>

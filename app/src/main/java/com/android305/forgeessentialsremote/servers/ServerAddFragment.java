@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TableRow;
 
 import com.android305.forgeessentialsremote.MainActivity;
 import com.android305.forgeessentialsremote.R;
@@ -117,6 +118,10 @@ public class ServerAddFragment extends Fragment {
                 e.printStackTrace();
             }
         }
+        if (!edit) {
+            TableRow row = find(v, R.id.timeout_row);
+            row.setVisibility(View.GONE);
+        }
         setHasOptionsMenu(true);
         // Inflate the layout for this fragment
         return v;
@@ -142,15 +147,10 @@ public class ServerAddFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (!((MainActivity) getActivity()).mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            inflater.inflate(R.menu.server_add_fragment, menu);
-            menu.findItem(R.id.action_settings).setVisible(false);
-            if (edit)
-                menu.findItem(R.id.action_add).setIcon(R.drawable.ic_action_edit);
-        }
+        inflater.inflate(R.menu.server_add_fragment, menu);
+        menu.findItem(R.id.action_settings).setVisible(false);
+        if (edit)
+            menu.findItem(R.id.action_add).setIcon(R.drawable.ic_action_edit);
     }
 
     @Override
@@ -208,7 +208,7 @@ public class ServerAddFragment extends Fragment {
                     try {
                         newServer.setTimeout(Integer.parseInt(timeoutTxt));
                     } catch (NumberFormatException e) {
-                        newServer.setTimeout(3000);
+                        newServer.setTimeout(15000);
                     }
                     newServer.setSSL(isSSL);
                     newServer.setAutoConnect(isAutoConnect);

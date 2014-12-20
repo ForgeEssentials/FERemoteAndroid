@@ -18,7 +18,7 @@ public class Server implements Serializable {
     private String uuid;
     private String token;
     private boolean autoConnect;
-    private int timeout = 3000;
+    private int timeout = 15000;
 
     private boolean isConnected = false;
 

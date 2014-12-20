@@ -74,7 +74,7 @@ public class ServerListFragment extends ListFragment implements AbsListView.OnIt
             @Override
             public void onClick(View v) {
                 addServerMenu.collapse();
-                mListener.onServerAdd(false);
+                mListener.onServerAddClicked(false);
             }
         });
 
@@ -83,7 +83,7 @@ public class ServerListFragment extends ListFragment implements AbsListView.OnIt
             @Override
             public void onClick(View v) {
                 addServerMenu.collapse();
-                mListener.onServerAdd(true);
+                mListener.onServerAddClicked(true);
             }
         });
         return view;
@@ -163,7 +163,7 @@ public class ServerListFragment extends ListFragment implements AbsListView.OnIt
     public interface OnFragmentInteractionListener {
         public void onFragmentInteraction(Server server, boolean longClick);
 
-        public void onServerAdd(boolean barcode);
+        public void onServerAddClicked(boolean barcode);
     }
 
 }
