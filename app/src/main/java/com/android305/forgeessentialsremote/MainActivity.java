@@ -26,6 +26,8 @@ public class MainActivity extends ActionBarActivity
 
     public final static String PREFS = "com.android305.forgeessentialsremote";
 
+    public static final Pattern CONNECT_STRING_PATTERN = Pattern.compile("([^@\\n]+)@(ssl:)?([^:|\\n]+)(?::(\\d+))?(?:\\|([^\\|\\n]+))?", Pattern.CASE_INSENSITIVE);
+
     private int screen = 0;
 
     @Override
@@ -80,9 +82,8 @@ public class MainActivity extends ActionBarActivity
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null) {
             try {
-                Pattern p = Pattern.compile("/([^@\\n]+)@(ssl:)?([^:|\\n]+)(?::(\\d+))?(?:\\|([^\\|\\n]+))?/g");
-                Matcher m = p.matcher(scanResult.getContents());
-                while (m.find()) {
+                Matcher m = CONNECT_STRING_PATTERN.matcher(scanResult.getContents());
+                if (m.matches()) {
                     String ssl = m.group(2);
                     String port = m.group(4);
                     Server server = new Server();
@@ -91,7 +92,7 @@ public class MainActivity extends ActionBarActivity
                     server.setPortNumber(port == null ? 27020 : Integer.parseInt(port));
                     server.setUsername(m.group(1));
                     server.setToken(m.group(5));
-                    server.setSSL(ssl != null && ssl.equals("ssl"));
+                    server.setSSL(ssl != null && ssl.equalsIgnoreCase("ssl"));
                     showServerScreen(server, false);
                 }
             } catch (Exception e) {
