@@ -11,7 +11,7 @@ import android.widget.Toast;
 import com.android305.forgeessentialsremote.servers.active.Server;
 import com.android305.forgeessentialsremote.servers.ServerAddFragment;
 import com.android305.forgeessentialsremote.servers.ServerListFragment;
-import com.android305.forgeessentialsremote.servers.ServersDataSource;
+import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 

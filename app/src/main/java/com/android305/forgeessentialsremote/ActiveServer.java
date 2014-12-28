@@ -6,20 +6,22 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 
 import com.android305.forgeessentialsremote.servers.active.Server;
-import com.android305.forgeessentialsremote.servers.ServersDataSource;
-import com.android305.forgeessentialsremote.servers.active.fragments.PlayerFragment;
+import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
 
 
 public class ActiveServer extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+    private final int SERVER_INFO = 0;
+    private final int PLAYER_LIST = 1;
+    private final int CHAT = 2;
+    private final int CONSOLE = 3;
+    private final int PERMISSIONS = 4;
     private Server activeServer;
     private ServersDataSource dataSource;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,14 +29,13 @@ public class ActiveServer extends ActionBarActivity
         dataSource = new ServersDataSource(this);
         dataSource.open();
         activeServer = dataSource.getServer(getIntent().getLongExtra("server.id", -1));
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
+        NavigationDrawerFragment mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-        mNavigationDrawerFragment.load(activeServer.getUsername());
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         setTitle(activeServer.getServerName());
     }
@@ -50,20 +51,15 @@ public class ActiveServer extends ActionBarActivity
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         switch (position) {
-            case 0: //Server Information
+            case SERVER_INFO: //Server Information
                 break;
-            case 1: //Logged in Player
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, PlayerFragment.newInstance(activeServer))
-                        .commit();
+            case PLAYER_LIST: //Player List
                 break;
-            case 2: //Player List
+            case CHAT: //Chat
                 break;
-            case 3: //Chat
+            case CONSOLE: //Console
                 break;
-            case 4: //Console
-                break;
-            case 5: //Permissions
+            case PERMISSIONS: //Permissions
                 break;
 
         }

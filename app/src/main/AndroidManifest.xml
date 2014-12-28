@@ -17,10 +17,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings" >
-        </activity>
-        <activity
             android:name=".ActiveServer"
             android:label="@string/title_activity_active_server"
             android:parentActivityName=".MainActivity" >
@@ -28,6 +24,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.android305.forgeessentialsremote.MainActivity" />
         </activity>
+
+        <service
+            android:name=".service.FEBackgroundService"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/service_name">
+        </service>
     </application>
 
 </manifest>

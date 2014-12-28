@@ -58,9 +58,9 @@ public class Server implements Serializable {
     public static Server getServerFromSerializedBytes(byte[] server) throws IOException, ClassNotFoundException {
         ObjectInputStream ois = new ObjectInputStream(
                 new ByteArrayInputStream(server));
-        Server s = (Server) ois.readObject();
+        Server o = (Server) ois.readObject();
         ois.close();
-        return s;
+        return o;
     }
 
     public boolean connect() {
@@ -159,6 +159,10 @@ public class Server implements Serializable {
 
     public boolean isConnected() {
         return isConnected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.isConnected = connected;
     }
 
     public int getTimeout() {

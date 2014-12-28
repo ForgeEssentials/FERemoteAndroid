@@ -88,11 +88,6 @@ public class NavigationDrawerFragment extends Fragment {
                              Bundle savedInstanceState) {
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_server_navigation_drawer, container, false);
-
-        return mDrawerListView;
-    }
-
-    public void load(String username) {
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -105,13 +100,13 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.id.text1,
                 new String[]{
                         getString(R.string.drawer_server_information),
-                        username,
                         getString(R.string.drawer_player_list),
                         getString(R.string.drawer_chat),
                         getString(R.string.drawer_console),
                         getString(R.string.drawer_permissions)
                 }));
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+        return mDrawerListView;
     }
 
     public boolean isDrawerOpen() {

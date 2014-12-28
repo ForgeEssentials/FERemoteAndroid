@@ -1,4 +1,4 @@
-package com.android305.forgeessentialsremote.servers;
+package com.android305.forgeessentialsremote.sqlite.datasources;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -23,7 +23,7 @@ public class ServersDataSource {
             SQLDatabaseHelper.COLUMN_SERVERS_PORT, SQLDatabaseHelper.COLUMN_SERVERS_SSL,
             SQLDatabaseHelper.COLUMN_SERVERS_USERNAME, SQLDatabaseHelper.COLUMN_SERVERS_UUID,
             SQLDatabaseHelper.COLUMN_SERVERS_TOKEN, SQLDatabaseHelper.COLUMN_SERVERS_AUTO_CONNECT,
-            SQLDatabaseHelper.COLUMN_SERVERS_TIMEOUT};
+            SQLDatabaseHelper.COLUMN_SERVERS_TIMEOUT, SQLDatabaseHelper.COLUMN_SERVERS_CONNECTED};
 
     public ServersDataSource(Context context) {
         dbHelper = new SQLDatabaseHelper(context);
@@ -48,6 +48,7 @@ public class ServersDataSource {
         values.put(SQLDatabaseHelper.COLUMN_SERVERS_TOKEN, server.getToken());
         values.put(SQLDatabaseHelper.COLUMN_SERVERS_AUTO_CONNECT, server.isAutoConnect() ? 1 : 0);
         values.put(SQLDatabaseHelper.COLUMN_SERVERS_TIMEOUT, server.getTimeout());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_CONNECTED, 0);
         long insertId = database.insert(SQLDatabaseHelper.TABLE_SERVERS, null,
                 values);
         Cursor cursor = database.query(SQLDatabaseHelper.TABLE_SERVERS,
@@ -70,31 +71,10 @@ public class ServersDataSource {
         values.put(SQLDatabaseHelper.COLUMN_SERVERS_TOKEN, server.getToken());
         values.put(SQLDatabaseHelper.COLUMN_SERVERS_AUTO_CONNECT, server.isAutoConnect() ? 1 : 0);
         values.put(SQLDatabaseHelper.COLUMN_SERVERS_TIMEOUT, server.getTimeout());
+        values.put(SQLDatabaseHelper.COLUMN_SERVERS_CONNECTED, server.isConnected());
         long id = database.update(SQLDatabaseHelper.TABLE_SERVERS, values, SQLDatabaseHelper.COLUMN_SERVERS_ID + " = " + server.getId(), new String[]{});
         Cursor cursor = database.query(SQLDatabaseHelper.TABLE_SERVERS,
                 allColumns, SQLDatabaseHelper.COLUMN_SERVERS_ID + " = " + id, null,
-                null, null, null);
-        cursor.moveToFirst();
-        Server newServer = cursorToServer(cursor);
-        cursor.close();
-        return newServer;
-    }
-
-    public Server createServer(String name, String ip, int port, boolean ssl, String username, String uuid, String token, boolean autoConnect, int timeout) {
-        ContentValues values = new ContentValues();
-        values.put(SQLDatabaseHelper.COLUMN_SERVERS_NAME, name);
-        values.put(SQLDatabaseHelper.COLUMN_SERVERS_IP, ip);
-        values.put(SQLDatabaseHelper.COLUMN_SERVERS_PORT, port);
-        values.put(SQLDatabaseHelper.COLUMN_SERVERS_SSL, ssl ? 1 : 0);
-        values.put(SQLDatabaseHelper.COLUMN_SERVERS_USERNAME, username);
-        values.put(SQLDatabaseHelper.COLUMN_SERVERS_UUID, uuid);
-        values.put(SQLDatabaseHelper.COLUMN_SERVERS_TOKEN, token);
-        values.put(SQLDatabaseHelper.COLUMN_SERVERS_AUTO_CONNECT, autoConnect ? 1 : 0);
-        values.put(SQLDatabaseHelper.COLUMN_SERVERS_TIMEOUT, timeout);
-        long insertId = database.insert(SQLDatabaseHelper.TABLE_SERVERS, null,
-                values);
-        Cursor cursor = database.query(SQLDatabaseHelper.TABLE_SERVERS,
-                allColumns, SQLDatabaseHelper.COLUMN_SERVERS_ID + " = " + insertId, null,
                 null, null, null);
         cursor.moveToFirst();
         Server newServer = cursorToServer(cursor);
@@ -146,6 +126,7 @@ public class ServersDataSource {
         server.setToken(cursor.getString(7));
         server.setAutoConnect(cursor.getInt(8) == 1);
         server.setTimeout(cursor.getInt(9));
+        server.setConnected(cursor.getInt(10) == 1);
         return server;
     }
 } 

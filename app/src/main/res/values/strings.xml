@@ -41,14 +41,14 @@
     <string name="drawer_permissions">Permissions</string>
     <string name="active_player_name">Username</string>
     <string name="active_player_uuid">UUID</string>
-    <string name="active_player_location_x">X</string>
-    <string name="active_player_location_y">Y</string>
-    <string name="active_player_location_z">Z</string>
-    <string name="active_player_location_dim">Dim</string>
     <string name="active_player_health">Health</string>
     <string name="active_player_armor">Armor</string>
     <string name="active_player_hunger">Hunger</string>
     <string name="active_player_saturation">Saturation</string>
-    <string name="active_player_n_a">n/a</string>
+    <string name="active_player_location">Location</string>
+
+    <!-- Service -->
+
+    <string name="service_name">FE Background Service</string>
 
 </resources>
