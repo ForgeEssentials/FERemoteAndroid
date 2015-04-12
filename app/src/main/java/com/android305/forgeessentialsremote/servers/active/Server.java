@@ -1,6 +1,12 @@
 package com.android305.forgeessentialsremote.servers.active;
 
 import android.content.SharedPreferences;
+import android.util.Log;
+
+import com.forgeessentials.remote.client.RemoteClient;
+import com.forgeessentials.remote.client.RemoteRequest;
+import com.forgeessentials.remote.client.RemoteResponse;
+import com.forgeessentials.remote.client.RequestAuth;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,13 +14,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
-/**
- * Created by Andres on 12/18/2014.
- */
 public class Server implements Serializable {
 
-    private long id;
+    private int id;
     private String serverName;
     private String serverIP;
     private int portNumber;
@@ -25,12 +30,14 @@ public class Server implements Serializable {
     private boolean autoConnect;
     private int timeout = 15000;
 
-    private boolean isConnected = false;
+    private RemoteClient client;
+    private RequestAuth auth;
 
     public Server() {
     }
 
-    public Server(long id, String serverName, String serverIP, int portNumber, boolean ssl, String username, String uuid, String token, boolean autoConnect) {
+    public Server(int id, String serverName, String serverIP, int portNumber, boolean ssl,
+                  String username, String uuid, String token, boolean autoConnect) {
         this.id = id;
         this.serverName = serverName;
         this.serverIP = serverIP;
@@ -42,7 +49,8 @@ public class Server implements Serializable {
         this.autoConnect = autoConnect;
     }
 
-    public Server(long id, String serverName, String serverIP, int portNumber, boolean ssl, String username, String uuid, String token, boolean autoConnect, int timeout) {
+    public Server(int id, String serverName, String serverIP, int portNumber, boolean ssl,
+                  String username, String uuid, String token, boolean autoConnect, int timeout) {
         this.id = id;
         this.serverName = serverName;
         this.serverIP = serverIP;
@@ -55,22 +63,57 @@ public class Server implements Serializable {
         this.timeout = timeout;
     }
 
-    public static Server getServerFromSerializedBytes(byte[] server) throws IOException, ClassNotFoundException {
-        ObjectInputStream ois = new ObjectInputStream(
-                new ByteArrayInputStream(server));
+    public static Server getServerFromSerializedBytes(byte[] server) throws IOException,
+            ClassNotFoundException {
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(server));
         Server o = (Server) ois.readObject();
         ois.close();
         return o;
     }
 
-    public boolean connect() {
-        //TODO: Connect Session by using the ServerConnection class statically.
-        return false;
+    public void disconnect() {
+        if (client != null) client.close();
     }
 
-    public boolean ping() {
-        //TODO: PONG by using the ServerConnection class statically.
-        return false;
+    public RemoteClient connect() throws IOException {
+        Socket s = new Socket();
+        s.connect(new InetSocketAddress(serverIP, portNumber), timeout);
+        client = new RemoteClient(s);
+        auth = new RequestAuth(uuid != null && !uuid.isEmpty() ? uuid : username, token);
+        return client;
+    }
+
+    public RemoteResponse.JsonRemoteResponse queryCapabilities() {
+        RemoteRequest<Object> request = new RemoteRequest<>("query_remote_capabilities", auth,
+                null);
+        RemoteResponse.JsonRemoteResponse response = client.sendRequestAndWait(request, timeout);
+        if (response == null) {
+            Log.d("Server", "Error QueryCap: no response");
+            return null;
+        }
+        if (!response.success) {
+            Log.d("Server", "Error QueryCap: " + response.message);
+            return null;
+        }
+        Log.d("Server", "Capabilities: " + response.data.toString());
+        return response;
+    }
+
+    private boolean enablePushChat(boolean enable) {
+        RemoteRequest<RemoteRequest.PushRequestData> request = new RemoteRequest<>("push_chat",
+                auth, new RemoteRequest.PushRequestData(enable));
+        RemoteResponse.JsonRemoteResponse response = client.sendRequestAndWait(request, timeout);
+        if (response == null) {
+            Log.d("Server", "Error PushChat: no response");
+            return false;
+        }
+        if (!response.success) {
+            Log.d("Server", "Error PushChat: " + response.message);
+            return false;
+        }
+        Log.d("Server", "PushChat: " + (response.data != null ? response.data.toString() :
+                response.message));
+        return true;
     }
 
     public boolean isDefault(SharedPreferences manager) {
@@ -85,11 +128,11 @@ public class Server implements Serializable {
         }
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -158,11 +201,7 @@ public class Server implements Serializable {
     }
 
     public boolean isConnected() {
-        return isConnected;
-    }
-
-    public void setConnected(boolean connected) {
-        this.isConnected = connected;
+        return client != null && !client.isClosed();
     }
 
     public int getTimeout() {
@@ -186,7 +225,7 @@ public class Server implements Serializable {
                 ", token='" + token + '\'' +
                 ", autoConnect=" + autoConnect +
                 ", timeout=" + timeout +
-                ", isConnected=" + isConnected +
+                ", isConnected=" + isConnected() +
                 '}';
     }
 
@@ -197,4 +236,5 @@ public class Server implements Serializable {
         oos.close();
         return baos.toByteArray();
     }
+
 }

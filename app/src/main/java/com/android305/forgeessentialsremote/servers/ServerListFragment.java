@@ -101,6 +101,7 @@ public class ServerListFragment extends ListFragment implements AdapterView.OnIt
         super.onAttach(activity);
         try {
             mListener = (OnFragmentInteractionListener) activity;
+            mListener.onAttach(this);
             dataSource = new ServersDataSource(activity);
             dataSource.open();
         } catch (ClassCastException e) {
@@ -165,6 +166,8 @@ public class ServerListFragment extends ListFragment implements AdapterView.OnIt
         public void onFragmentInteraction(Server server, boolean longClick);
 
         public void onServerAddClicked(boolean barcode);
+
+        public void onAttach(ServerListFragment fragment);
     }
 
 }

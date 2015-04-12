@@ -18,7 +18,6 @@ public class SQLDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_SERVERS_TOKEN = "token";
     public static final String COLUMN_SERVERS_AUTO_CONNECT = "auto_connect";
     public static final String COLUMN_SERVERS_TIMEOUT = "timeout";
-    public static final String COLUMN_SERVERS_CONNECTED = "connected";
 
     // Database creation sql statements
     //@formatter:off
@@ -33,13 +32,12 @@ public class SQLDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_SERVERS_UUID + " text, "
             + COLUMN_SERVERS_TOKEN + " text not null, "
             + COLUMN_SERVERS_AUTO_CONNECT + " integer not null, "
-            + COLUMN_SERVERS_TIMEOUT + " integer not null, "
-            + COLUMN_SERVERS_CONNECTED + " integer not null"
+            + COLUMN_SERVERS_TIMEOUT + " integer not null "
             + ");";
     //@formatter:on
 
     private static final String DATABASE_NAME = "feremote.db";
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     public SQLDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

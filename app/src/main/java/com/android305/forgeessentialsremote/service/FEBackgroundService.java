@@ -3,13 +3,15 @@ package com.android305.forgeessentialsremote.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.android305.forgeessentialsremote.servers.active.Server;
+import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
 
-/**
- * Created by Andres on 12/28/2014.
- */
+import java.io.IOException;
+import java.util.List;
+
 public class FEBackgroundService extends Service {
 
     public final String COMMAND = "command";
@@ -19,6 +21,7 @@ public class FEBackgroundService extends Service {
     public final int COMMAND_QUERY_PLAYER = 3;
 
     private SparseArray<Server> loadedServers = new SparseArray<>();
+    private ServersDataSource dataSource;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -28,7 +31,27 @@ public class FEBackgroundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        dataSource = new ServersDataSource(this);
+        dataSource.open();
+        new Thread() {
+            public void run() {
+                List<Server> servers = dataSource.getAllServers();
+                for (Server server : servers) {
+                    if (server.isAutoConnect()) {
+                        try {
+                            server.connect();
+                            server.queryCapabilities();
+                            loadedServers.setValueAt(server.getId(), server);
+                        } catch (IOException e) {
+                            Log.e("Service", "Couldn't connect to " + server.getServerIP() + ":" + server
+                                    .getPortNumber(), e);
+                            //TODO: send could not connect notification
+                        }
 
+                    }
+                }
+            }
+        }.start();
     }
 
     @Override
@@ -38,6 +61,11 @@ public class FEBackgroundService extends Service {
 
     @Override
     public void onDestroy() {
+        try {
+            dataSource.close();
+        } catch (Exception e) {
+            // ignore all exceptions, we just want to close
+        }
         super.onDestroy();
     }
 }

@@ -11,11 +11,11 @@ import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource
 
 public class ActiveServer extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
-    private final int SERVER_INFO = 0;
-    private final int PLAYER_LIST = 1;
-    private final int CHAT = 2;
-    private final int CONSOLE = 3;
-    private final int PERMISSIONS = 4;
+    private final static int SERVER_INFO = 0;
+    private final static int PLAYER_LIST = 1;
+    private final static int CHAT = 2;
+    private final static int CONSOLE = 3;
+    private final static int PERMISSIONS = 4;
     private Server activeServer;
     private ServersDataSource dataSource;
 
@@ -28,7 +28,7 @@ public class ActiveServer extends ActionBarActivity
         setContentView(R.layout.activity_active_server);
         dataSource = new ServersDataSource(this);
         dataSource.open();
-        activeServer = dataSource.getServer(getIntent().getLongExtra("server.id", -1));
+        activeServer = dataSource.getServer(getIntent().getIntExtra("server.id", -1));
         NavigationDrawerFragment mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 

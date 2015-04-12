@@ -40,7 +40,7 @@ public class ServerAddFragment extends Fragment {
     private CheckBox autoConnect;
     private CheckBox defaultServer;
     private boolean edit = false;
-    private long id = 0;
+    private int id = 0;
     private String uuid = null;
 
     public ServerAddFragment() {

@@ -50,5 +50,10 @@
     <!-- Service -->
 
     <string name="service_name">FE Background Service</string>
+    <string name="connecting">Connecting</string>
+    <string name="please_wait_">Please wait…</string>
+    <string name="cancel">Cancel</string>
+    <string name="connection_refused">Couldn\'t connect: Connection Refused</string>
+    <string name="connection_timeout">Couldn\'t connect: Connection Timed out</string>
 
 </resources>

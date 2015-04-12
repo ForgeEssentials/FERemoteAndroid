@@ -28,14 +28,14 @@ public class ServerFragmentAdapter extends ArrayAdapter<Server> {
     public ServerFragmentAdapter(Context context, Server[] objects) {
         super(context, R.layout.fragment_server_list_item, objects);
         for (Server s : objects) {
-            servers.put(new Long(s.getId()).intValue(), s);
+            servers.put(s.getId(), s);
         }
     }
 
     public ServerFragmentAdapter(Context context, List<Server> objects) {
         super(context, R.layout.fragment_server_list_item, objects);
         for (Server s : objects) {
-            servers.put(new Long(s.getId()).intValue(), s);
+            servers.put(s.getId(), s);
         }
     }
 
