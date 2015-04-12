@@ -54,6 +54,7 @@ public class ActiveServer extends ActionBarActivity
             case SERVER_INFO: //Server Information
                 break;
             case PLAYER_LIST: //Player List
+
                 break;
             case CHAT: //Chat
                 break;

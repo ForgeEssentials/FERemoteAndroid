@@ -37,7 +37,7 @@ public class SQLDatabaseHelper extends SQLiteOpenHelper {
     //@formatter:on
 
     private static final String DATABASE_NAME = "feremote.db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 13;
 
     public SQLDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

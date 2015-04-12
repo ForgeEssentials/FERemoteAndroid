@@ -1,7 +1,10 @@
 package com.android305.forgeessentialsremote;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,9 +25,6 @@ import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,15 +34,23 @@ public class MainActivity extends ActionBarActivity implements ServerListFragmen
 
     public final static String PREFS = "com.android305.forgeessentialsremote";
 
+    public final static String TASK_REFRESH_LIST = "com.android305.forgeesentialsremote" + "" +
+            ".REFRESH_LIST";
+
     public static final Pattern CONNECT_STRING_PATTERN = Pattern.compile("([^@\\n]+)@(ssl:)?" + "" +
             "([^:|\\n]+)(?::(\\d+))?(?:\\|([^\\|\\n]+))?", Pattern.CASE_INSENSITIVE);
 
     private ServerListFragment listFragment;
+    private DataUpdateReceiver dataUpdateReceiver;
+    private ServersDataSource dataSource;
+    private boolean serverTriedConnect = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        dataSource = new ServersDataSource(this);
+        dataSource.open();
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment f = fragmentManager.findFragmentByTag("server_list_fragment");
         if (f == null || (!f.isVisible() && !f.isAdded())) {
@@ -57,6 +65,7 @@ public class MainActivity extends ActionBarActivity implements ServerListFragmen
         super.onBackPressed();
     }
 
+
     @Override
     public void onFragmentInteraction(final Server server, boolean longClick) {
         if (longClick) {
@@ -69,49 +78,17 @@ public class MainActivity extends ActionBarActivity implements ServerListFragmen
             } else {
                 final Thread thread = new Thread() {
                     public void run() {
-                        try {
-                            server.connect();
-                            server.queryCapabilities();
-                        } catch (SocketTimeoutException e) {
-                            Log.e("Server", "Couldn't connect", e);
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    Toast.makeText(MainActivity.this,
-                                            R.string.connection_timeout, Toast.LENGTH_SHORT).show();
-
-
-                                }
-                            });
-                        } catch (final ConnectException e) {
-                            Log.e("Server", "Couldn't connect", e);
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    if (e.getMessage().contains("ECONNREFUSED")) {
-                                        Toast.makeText(MainActivity.this,
-                                                R.string.connection_refused,
-                                                Toast.LENGTH_SHORT).show();
-                                    } else if (e.getMessage().contains("ETIMEDOUT")) {
-                                        Toast.makeText(MainActivity.this,
-                                                R.string.connection_timeout,
-                                                Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(MainActivity.this,
-                                                "Couldn't connect: " + e.getLocalizedMessage(),
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-                        } catch (final IOException e) {
-                            Log.e("Server", "Couldn't connect to " + server.getServerIP() + ":" +
-                                    server.getPortNumber(), e);
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    Toast.makeText(MainActivity.this,
-                                            "Couldn't connect: " + e.getLocalizedMessage(),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                        serverTriedConnect = false;
+                        Intent i = new Intent(MainActivity.this, FEBackgroundService.class);
+                        i.setAction(FEBackgroundService.TASK_CONNECT_SERVER);
+                        i.putExtra("server.id", server.getId());
+                        startService(i);
+                        while (!serverTriedConnect) try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            // Ignore
                         }
+                        serverTriedConnect = false;
                     }
                 };
                 GenericProgressDialog dialog = GenericProgressDialog.newInstance(this,
@@ -234,13 +211,10 @@ public class MainActivity extends ActionBarActivity implements ServerListFragmen
         }
     }
 
-
     @Override
     public boolean onServerAction(Server serverToAdd, boolean makeDefault, boolean edit) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment f = fragmentManager.findFragmentByTag("server_add_fragment");
-        ServersDataSource dataSource = new ServersDataSource(this);
-        dataSource.open();
         Server addedServer;
         if (!edit) addedServer = dataSource.createServer(serverToAdd);
         else addedServer = dataSource.updateServer(serverToAdd);
@@ -261,5 +235,32 @@ public class MainActivity extends ActionBarActivity implements ServerListFragmen
     public void onAttach(ServerListFragment fragment) {
         listFragment = fragment;
         startService(new Intent(this, FEBackgroundService.class));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (dataUpdateReceiver == null) dataUpdateReceiver = new DataUpdateReceiver();
+        IntentFilter intentFilter = new IntentFilter(TASK_REFRESH_LIST);
+        registerReceiver(dataUpdateReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (dataUpdateReceiver != null) unregisterReceiver(dataUpdateReceiver);
+    }
+
+    private class DataUpdateReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case TASK_REFRESH_LIST:
+                    if (intent.hasExtra("serverTriedConnect"))
+                        serverTriedConnect = intent.getBooleanExtra("serverTriedConnect", false);
+                    listFragment.refresh();
+                    break;
+            }
+        }
     }
 }

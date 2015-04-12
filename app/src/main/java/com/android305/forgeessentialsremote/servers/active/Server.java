@@ -3,6 +3,7 @@ package com.android305.forgeessentialsremote.servers.active;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.android305.forgeessentialsremote.service.FEBackgroundService;
 import com.forgeessentials.remote.client.RemoteClient;
 import com.forgeessentials.remote.client.RemoteRequest;
 import com.forgeessentials.remote.client.RemoteResponse;
@@ -30,8 +31,8 @@ public class Server implements Serializable {
     private boolean autoConnect;
     private int timeout = 15000;
 
-    private RemoteClient client;
-    private RequestAuth auth;
+    private transient RemoteClient client;
+    private transient RequestAuth auth;
 
     public Server() {
     }
@@ -72,10 +73,26 @@ public class Server implements Serializable {
     }
 
     public void disconnect() {
+        if (client == null) {
+            Server load = FEBackgroundService.loadedServers.get(id);
+            if (load != null) {
+                client = load.getClient();
+                auth = load.getAuth();
+            }
+        }
         if (client != null) client.close();
+        client = null;
     }
 
     public RemoteClient connect() throws IOException {
+        if (client == null) {
+            Server load = FEBackgroundService.loadedServers.get(id);
+            if (load != null) {
+                client = load.getClient();
+                auth = load.getAuth();
+                return client;
+            }
+        }
         Socket s = new Socket();
         s.connect(new InetSocketAddress(serverIP, portNumber), timeout);
         client = new RemoteClient(s);
@@ -99,7 +116,14 @@ public class Server implements Serializable {
         return response;
     }
 
-    private boolean enablePushChat(boolean enable) {
+    public boolean setPushChatEnabled(boolean enable) {
+        if (client == null) {
+            Server load = FEBackgroundService.loadedServers.get(id);
+            if (load != null) {
+                client = load.getClient();
+                auth = load.getAuth();
+            }
+        }
         RemoteRequest<RemoteRequest.PushRequestData> request = new RemoteRequest<>("push_chat",
                 auth, new RemoteRequest.PushRequestData(enable));
         RemoteResponse.JsonRemoteResponse response = client.sendRequestAndWait(request, timeout);
@@ -201,6 +225,13 @@ public class Server implements Serializable {
     }
 
     public boolean isConnected() {
+        if (client == null) {
+            Server load = FEBackgroundService.loadedServers.get(id);
+            if (load != null) {
+                client = load.getClient();
+                auth = load.getAuth();
+            }
+        }
         return client != null && !client.isClosed();
     }
 
@@ -210,6 +241,14 @@ public class Server implements Serializable {
 
     public void setTimeout(int timeout) {
         this.timeout = timeout;
+    }
+
+    public RemoteClient getClient() {
+        return client;
+    }
+
+    public RequestAuth getAuth() {
+        return auth;
     }
 
     @Override
