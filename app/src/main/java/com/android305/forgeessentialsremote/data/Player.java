@@ -1,4 +1,4 @@
-package com.android305.forgeessentialsremote.servers.active.fragments.data;
+package com.android305.forgeessentialsremote.data;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

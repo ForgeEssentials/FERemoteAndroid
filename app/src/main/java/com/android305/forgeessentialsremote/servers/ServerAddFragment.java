@@ -11,23 +11,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TableRow;
 
 import com.android305.forgeessentialsremote.MainActivity;
 import com.android305.forgeessentialsremote.R;
-import com.android305.forgeessentialsremote.servers.active.Server;
+import com.android305.forgeessentialsremote.data.Server;
 
 import java.io.IOException;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ServerAddFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ServerAddFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ServerAddFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
@@ -85,6 +78,13 @@ public class ServerAddFragment extends Fragment {
         ssl = find(v, R.id.ssl);
         autoConnect = find(v, R.id.autoConnect);
         defaultServer = find(v, R.id.defaultServer);
+        defaultServer.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                    autoConnect.setChecked(true);
+            }
+        });
         Bundle b = getArguments();
         if (b != null && b.containsKey("server.ser")) {
             try {
@@ -209,16 +209,6 @@ public class ServerAddFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         public boolean onServerAction(Server serverToAdd, boolean makeDefault, boolean edit);
     }

@@ -3,24 +3,35 @@ package com.forgeessentials.remote.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 
 import com.forgeessentials.remote.client.RemoteResponse.JsonRemoteResponse;
+import com.forgeessentials.remote.client.data.type.UserIdentType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 
 public class RemoteClient implements Runnable {
+
+    public static interface DataType<T> extends JsonSerializer<T>, JsonDeserializer<T> {
+        Class<T> getType();
+    }
 
     public static final String SEPARATOR = "\n\n\n";
 
@@ -31,13 +42,49 @@ public class RemoteClient implements Runnable {
 
     private final Thread thread;
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
     private int currentRid = 1;
 
     private Set<Integer> waitingRids = new HashSet<Integer>(); // Collections.synchronizedSet(new HashSet<Integer>());
 
     private List<JsonRemoteResponse> responses = Collections.synchronizedList(new LinkedList<JsonRemoteResponse>());
+
+    // ------------------------------------------------------------
+
+    private static Gson gson;
+
+    private static boolean formatsChanged;
+    
+    private static Map<Class<?>, JsonSerializer<?>> serializers = new HashMap<>();
+
+    private static Map<Class<?>, JsonDeserializer<?>> deserializers = new HashMap<>();
+
+    static
+    {
+        addDataType(new UserIdentType());
+    }
+
+    public static void addDataType(DataType<?> type)
+    {
+        serializers.put(type.getType(), type);
+        deserializers.put(type.getType(), type);
+        formatsChanged = true;
+    }
+
+    public Gson getGson()
+    {
+        if (gson == null || formatsChanged)
+        {
+            GsonBuilder builder = new GsonBuilder();
+            builder.setPrettyPrinting();
+            //builder.setExclusionStrategies(this);
+            for (Entry<Class<?>, JsonSerializer<?>> format : serializers.entrySet())
+                builder.registerTypeAdapter(format.getKey(), format.getValue());
+            for (Entry<Class<?>, JsonDeserializer<?>> format : deserializers.entrySet())
+                builder.registerTypeAdapter(format.getKey(), format.getValue());
+            gson = builder.create();
+        }
+        return gson;
+    }
 
     // ------------------------------------------------------------
 
@@ -56,11 +103,6 @@ public class RemoteClient implements Runnable {
     public RemoteClient(String host, int port, SSLContext sstCtx) throws UnknownHostException, IOException
     {
         this(sstCtx.getSocketFactory().createSocket(host, port));
-    }
-
-    public Gson getGson()
-    {
-        return gson;
     }
 
     // ------------------------------------------------------------
@@ -138,7 +180,7 @@ public class RemoteClient implements Runnable {
     {
         try
         {
-            JsonRemoteResponse response = gson.fromJson(message, JsonRemoteResponse.class);
+            JsonRemoteResponse response = getGson().fromJson(message, JsonRemoteResponse.class);
 
             // Check, if too many messages piled up
             if (responses.size() > 32)
@@ -221,7 +263,7 @@ public class RemoteClient implements Runnable {
             return;
         request.rid = currentRid++;
         OutputStreamWriter ow = new OutputStreamWriter(socket.getOutputStream());
-        ow.write(gson.toJson(request) + SEPARATOR);
+        ow.write(getGson().toJson(request) + SEPARATOR);
         ow.flush();
     }
 
@@ -291,9 +333,41 @@ public class RemoteClient implements Runnable {
      * @param timeout
      * @throws IOException
      */
+    public <T> RemoteResponse<T> sendRequestAndWait(RemoteRequest<?> request, Type type, int timeout)
+    {
+        JsonRemoteResponse response = sendRequestAndWait(request, timeout);
+        if (response == null)
+            return null;
+        // Deserialize the data payload now that we know it's type
+        return transformResponse(response, type);
+    }
+
+    /**
+     * Send a request and wait for the response
+     * 
+     * 
+     * @param request
+     * @param clazz
+     * @param timeout
+     * @throws IOException
+     */
     public <T> RemoteResponse<T> sendRequestAndWait(RemoteRequest<?> request, Class<T> clazz)
     {
         return sendRequestAndWait(request, clazz, 0);
+    }
+
+    /**
+     * Send a request and wait for the response
+     * 
+     * 
+     * @param request
+     * @param clazz
+     * @param timeout
+     * @throws IOException
+     */
+    public <T> RemoteResponse<T> sendRequestAndWait(RemoteRequest<?> request, Type type)
+    {
+        return sendRequestAndWait(request, type, 0);
     }
 
     /**
@@ -305,7 +379,19 @@ public class RemoteClient implements Runnable {
      */
     public <T> RemoteResponse<T> transformResponse(JsonRemoteResponse response, Class<T> clazz)
     {
-        return RemoteResponse.transform(response, gson.fromJson(response.data, clazz));
+        return RemoteResponse.transform(response, getGson().fromJson(response.data, clazz));
+    }
+
+    /**
+     * Transforms a generic response into one with the correctly deserialized data
+     * 
+     * @param response
+     * @param clazz
+     * @return
+     */
+    public <T> RemoteResponse<T> transformResponse(JsonRemoteResponse response, Type type)
+    {
+        return RemoteResponse.transform(response, getGson().<T>fromJson(response.data, type));
     }
 
     /**

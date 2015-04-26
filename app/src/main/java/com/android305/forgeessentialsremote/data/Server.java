@@ -1,4 +1,4 @@
-package com.android305.forgeessentialsremote.servers.active;
+package com.android305.forgeessentialsremote.data;
 
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -64,35 +64,15 @@ public class Server implements Serializable {
         this.timeout = timeout;
     }
 
-    public static Server getServerFromSerializedBytes(byte[] server) throws IOException,
-            ClassNotFoundException {
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(server));
-        Server o = (Server) ois.readObject();
-        ois.close();
-        return o;
-    }
-
     public void disconnect() {
-        if (client == null) {
-            Server load = FEBackgroundService.loadedServers.get(id);
-            if (load != null) {
-                client = load.getClient();
-                auth = load.getAuth();
-            }
-        }
+        loadClient();
         if (client != null) client.close();
         client = null;
     }
 
     public RemoteClient connect() throws IOException {
-        if (client == null) {
-            Server load = FEBackgroundService.loadedServers.get(id);
-            if (load != null) {
-                client = load.getClient();
-                auth = load.getAuth();
-                return client;
-            }
-        }
+        loadClient();
+        if (client != null && !client.isClosed()) return client;
         Socket s = new Socket();
         s.connect(new InetSocketAddress(serverIP, portNumber), timeout);
         client = new RemoteClient(s);
@@ -101,6 +81,7 @@ public class Server implements Serializable {
     }
 
     public RemoteResponse.JsonRemoteResponse queryCapabilities() {
+        loadClient();
         RemoteRequest<Object> request = new RemoteRequest<>("query_remote_capabilities", auth,
                 null);
         RemoteResponse.JsonRemoteResponse response = client.sendRequestAndWait(request, timeout);
@@ -117,13 +98,7 @@ public class Server implements Serializable {
     }
 
     public boolean setPushChatEnabled(boolean enable) {
-        if (client == null) {
-            Server load = FEBackgroundService.loadedServers.get(id);
-            if (load != null) {
-                client = load.getClient();
-                auth = load.getAuth();
-            }
-        }
+        loadClient();
         RemoteRequest<RemoteRequest.PushRequestData> request = new RemoteRequest<>("push_chat",
                 auth, new RemoteRequest.PushRequestData(enable));
         RemoteResponse.JsonRemoteResponse response = client.sendRequestAndWait(request, timeout);
@@ -138,6 +113,21 @@ public class Server implements Serializable {
         Log.d("Server", "PushChat: " + (response.data != null ? response.data.toString() :
                 response.message));
         return true;
+    }
+
+    public boolean isConnected() {
+        loadClient();
+        return client != null && !client.isClosed();
+    }
+
+    private void loadClient() {
+        if (client == null) {
+            Server load = FEBackgroundService.loadedServers.get(id);
+            if (load != null) {
+                client = load.getClient();
+                auth = load.getAuth();
+            }
+        }
     }
 
     public boolean isDefault(SharedPreferences manager) {
@@ -224,17 +214,6 @@ public class Server implements Serializable {
         this.autoConnect = autoConnect;
     }
 
-    public boolean isConnected() {
-        if (client == null) {
-            Server load = FEBackgroundService.loadedServers.get(id);
-            if (load != null) {
-                client = load.getClient();
-                auth = load.getAuth();
-            }
-        }
-        return client != null && !client.isClosed();
-    }
-
     public int getTimeout() {
         return timeout;
     }
@@ -274,6 +253,14 @@ public class Server implements Serializable {
         oos.writeObject(this);
         oos.close();
         return baos.toByteArray();
+    }
+
+    public static Server getServerFromSerializedBytes(byte[] server) throws IOException,
+            ClassNotFoundException {
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(server));
+        Server o = (Server) ois.readObject();
+        ois.close();
+        return o;
     }
 
 }

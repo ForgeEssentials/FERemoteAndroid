@@ -12,7 +12,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android305.forgeessentialsremote.R;
-import com.android305.forgeessentialsremote.servers.active.Server;
+import com.android305.forgeessentialsremote.data.Server;
 import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
@@ -28,7 +28,7 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
  */
 public class ServerListFragment extends ListFragment implements AdapterView.OnItemLongClickListener {
 
-    private ServersDataSource dataSource;
+    private ServersDataSource serversDataSource;
     private FloatingActionsMenu addServerMenu;
 
     private OnFragmentInteractionListener mListener;
@@ -93,7 +93,7 @@ public class ServerListFragment extends ListFragment implements AdapterView.OnIt
 
     public void refresh() {
         mAdapter.clear();
-        mAdapter.addAll(dataSource.getAllServers());
+        mAdapter.addAll(serversDataSource.getAllServers());
     }
 
     @Override
@@ -102,8 +102,8 @@ public class ServerListFragment extends ListFragment implements AdapterView.OnIt
         try {
             mListener = (OnFragmentInteractionListener) activity;
             mListener.onAttach(this);
-            dataSource = new ServersDataSource(activity);
-            dataSource.open();
+            serversDataSource = new ServersDataSource(activity);
+            serversDataSource.open();
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -114,7 +114,7 @@ public class ServerListFragment extends ListFragment implements AdapterView.OnIt
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        dataSource.close();
+        serversDataSource.close();
     }
 
     @Override

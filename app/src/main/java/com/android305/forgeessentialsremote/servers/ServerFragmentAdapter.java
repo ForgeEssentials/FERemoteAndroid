@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.android305.forgeessentialsremote.MainActivity;
 import com.android305.forgeessentialsremote.R;
-import com.android305.forgeessentialsremote.servers.active.Server;
+import com.android305.forgeessentialsremote.data.Server;
 
 import java.util.List;
 

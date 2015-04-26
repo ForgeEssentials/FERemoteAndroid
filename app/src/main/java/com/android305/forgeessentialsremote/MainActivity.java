@@ -14,12 +14,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android305.forgeessentialsremote.data.Server;
 import com.android305.forgeessentialsremote.dialog.CustomProgressDialog;
 import com.android305.forgeessentialsremote.dialog.DialogFragmentInterface;
 import com.android305.forgeessentialsremote.dialog.GenericProgressDialog;
 import com.android305.forgeessentialsremote.servers.ServerAddFragment;
 import com.android305.forgeessentialsremote.servers.ServerListFragment;
-import com.android305.forgeessentialsremote.servers.active.Server;
 import com.android305.forgeessentialsremote.service.FEBackgroundService;
 import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -42,15 +42,15 @@ public class MainActivity extends ActionBarActivity implements ServerListFragmen
 
     private ServerListFragment listFragment;
     private DataUpdateReceiver dataUpdateReceiver;
-    private ServersDataSource dataSource;
+    private ServersDataSource serversDataSource;
     private boolean serverTriedConnect = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        dataSource = new ServersDataSource(this);
-        dataSource.open();
+        serversDataSource = new ServersDataSource(this);
+        serversDataSource.open();
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment f = fragmentManager.findFragmentByTag("server_list_fragment");
         if (f == null || (!f.isVisible() && !f.isAdded())) {
@@ -216,16 +216,16 @@ public class MainActivity extends ActionBarActivity implements ServerListFragmen
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment f = fragmentManager.findFragmentByTag("server_add_fragment");
         Server addedServer;
-        if (!edit) addedServer = dataSource.createServer(serverToAdd);
-        else addedServer = dataSource.updateServer(serverToAdd);
+        if (!edit) addedServer = serversDataSource.createServer(serverToAdd);
+        else addedServer = serversDataSource.updateServer(serverToAdd);
         if (addedServer != null) {
             addedServer.setDefault(getSharedPreferences(MainActivity.PREFS, MODE_PRIVATE),
                     makeDefault);
             listFragment.refresh();
             fragmentManager.beginTransaction().detach(f).commit();
-            dataSource.close();
+            serversDataSource.close();
         } else {
-            dataSource.close();
+            serversDataSource.close();
             return false;
         }
         return true;
@@ -249,6 +249,16 @@ public class MainActivity extends ActionBarActivity implements ServerListFragmen
     protected void onPause() {
         super.onPause();
         if (dataUpdateReceiver != null) unregisterReceiver(dataUpdateReceiver);
+    }
+
+    @Override
+    public void onDestroy() {
+        try {
+            serversDataSource.close();
+        } catch (Exception e) {
+            // ignore all exceptions, we just want to close
+        }
+        super.onDestroy();
     }
 
     private class DataUpdateReceiver extends BroadcastReceiver {

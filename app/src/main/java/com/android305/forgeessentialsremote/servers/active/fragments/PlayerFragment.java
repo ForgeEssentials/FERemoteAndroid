@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.android305.forgeessentialsremote.R;
-import com.android305.forgeessentialsremote.servers.active.Server;
-import com.android305.forgeessentialsremote.servers.active.fragments.data.Player;
+import com.android305.forgeessentialsremote.data.Server;
+import com.android305.forgeessentialsremote.data.Player;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public class PlayerFragment extends Fragment {
         PlayerFragment fragment = new PlayerFragment();
         Bundle args = new Bundle();
         try {
-            args.putByteArray("server.ser", server.serialize());
+            //args.putByteArray("server.ser", server.serialize());
             args.putByteArray("player.ser", player.serialize());
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,10 +63,9 @@ public class PlayerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_active_player, container, false);
-        try {
             Bundle b = getArguments();
-            mServer = Server.getServerFromSerializedBytes(b.getByteArray("server.ser"));
-            mPlayer = Player.getPlayerFromSerializedBytes(b.getByteArray("player.ser"));
+            //mServer = Server.getServerFromSerializedBytes(b.getByteArray("server.ser"));
+            //mPlayer = Player.getPlayerFromSerializedBytes(b.getByteArray("player.ser"));
             username = find(v, R.id.username);
             uuid = find(v, R.id.uuid);
             health = find(v, R.id.health);
@@ -76,10 +75,6 @@ public class PlayerFragment extends Fragment {
             location = find(v, R.id.location);
 
             updatePlayer(mPlayer);
-
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
         return v;
     }
 

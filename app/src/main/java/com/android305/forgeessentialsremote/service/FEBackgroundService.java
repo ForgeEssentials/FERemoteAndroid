@@ -8,13 +8,16 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
 
+import com.android305.forgeessentialsremote.ActiveServer;
 import com.android305.forgeessentialsremote.MainActivity;
 import com.android305.forgeessentialsremote.R;
-import com.android305.forgeessentialsremote.servers.active.Server;
+import com.android305.forgeessentialsremote.data.ChatLog;
+import com.android305.forgeessentialsremote.data.Server;
+import com.android305.forgeessentialsremote.sqlite.datasources.ChatLogDataSource;
 import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
 import com.forgeessentials.remote.client.RemoteClient;
 import com.forgeessentials.remote.client.RemoteResponse;
-import com.forgeessentials.remote.client.data.PushChatHandler;
+import com.forgeessentials.remote.client.network.PushChatHandler;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -27,7 +30,8 @@ public class FEBackgroundService extends Service {
             ".CONNECT_SERVER";
 
     public static SparseArray<Server> loadedServers = new SparseArray<>();
-    private ServersDataSource dataSource;
+    private ServersDataSource serversDataSource;
+    private ChatLogDataSource chatLogDataSource;
     private Handler handler;
     private int connecting = -1;
 
@@ -40,11 +44,13 @@ public class FEBackgroundService extends Service {
     public void onCreate() {
         super.onCreate();
         handler = new Handler();
-        dataSource = new ServersDataSource(this);
-        dataSource.open();
+        serversDataSource = new ServersDataSource(this);
+        serversDataSource.open();
+        chatLogDataSource = new ChatLogDataSource(this);
+        chatLogDataSource.open();
         new Thread() {
             public void run() {
-                List<Server> servers = dataSource.getAllServers();
+                List<Server> servers = serversDataSource.getAllServers();
                 for (Server server : servers) {
                     if (server.isAutoConnect()) {
                         connect(server, false);
@@ -54,10 +60,10 @@ public class FEBackgroundService extends Service {
         }.start();
     }
 
-    private synchronized void connect(Server server, boolean fromActivity) {
+    private synchronized void connect(final Server server, boolean fromActivity) {
         connecting = server.getId();
         if (loadedServers.get(server.getId()) != null) {
-            if (server.getClient().isClosed()) {
+            if (server.getClient() == null || server.getClient().isClosed()) {
                 loadedServers.delete(server.getId());
             } else {
                 loadedServers.setValueAt(server.getId(), server);
@@ -76,7 +82,7 @@ public class FEBackgroundService extends Service {
                 public void run() {
                     while (!client.isClosed()) {
                         RemoteResponse.JsonRemoteResponse response = client.getNextResponse(0);
-                        if (response != null) handleResponse(client, response);
+                        if (response != null) handleResponse(server, client, response);
                     }
                 }
             }.start();
@@ -142,12 +148,19 @@ public class FEBackgroundService extends Service {
         }
     }
 
-    private void handleResponse(RemoteClient client, RemoteResponse.JsonRemoteResponse response) {
+    private void handleResponse(Server server, RemoteClient client, RemoteResponse.JsonRemoteResponse response) {
         switch (response.id) {
             case PushChatHandler.ID: {
                 RemoteResponse<PushChatHandler.Response> r = client.transformResponse(response,
                         PushChatHandler.Response.class);
-                Log.d("FEChat", String.format("Chat (%s): %s", r.data.username, r.data.message));
+                ChatLog c = chatLogDataSource.newChatLog(server, r.data.username, r.data.message);
+                try {
+                    Intent i = new Intent(ActiveServer.TASK_PUSH_CHAT);
+                    i.putExtra("chatlog.ser", c.serialize());
+                    sendBroadcast(i);
+                } catch (IOException e) {
+                    Log.e("PushChat", "Error serializing chat", e);
+                }
                 break;
             }
             case "shutdown": {
@@ -166,7 +179,7 @@ public class FEBackgroundService extends Service {
             switch (intent.getAction()) {
                 case TASK_CONNECT_SERVER:
                     int serverId = intent.getIntExtra("server.id", -1);
-                    final Server server = dataSource.getServer(serverId);
+                    final Server server = serversDataSource.getServer(serverId);
                     if (connecting != serverId) {
                         new Thread() {
                             public void run() {
@@ -183,7 +196,12 @@ public class FEBackgroundService extends Service {
     @Override
     public void onDestroy() {
         try {
-            dataSource.close();
+            serversDataSource.close();
+        } catch (Exception e) {
+            // ignore all exceptions, we just want to close
+        }
+        try {
+            chatLogDataSource.close();
         } catch (Exception e) {
             // ignore all exceptions, we just want to close
         }

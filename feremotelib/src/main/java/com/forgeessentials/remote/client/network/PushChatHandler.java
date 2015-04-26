@@ -1,4 +1,4 @@
-package com.forgeessentials.remote.client.data;
+package com.forgeessentials.remote.client.network;
 
 public final class PushChatHandler {
     

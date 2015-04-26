@@ -8,8 +8,14 @@ import com.forgeessentials.remote.client.RemoteRequest;
 import com.forgeessentials.remote.client.RemoteResponse;
 import com.forgeessentials.remote.client.RemoteResponse.JsonRemoteResponse;
 import com.forgeessentials.remote.client.RequestAuth;
-import com.forgeessentials.remote.client.data.PushChatHandler;
-import com.forgeessentials.remote.client.data.QueryPlayerHandler;
+import com.forgeessentials.remote.client.data.PermissionList;
+import com.forgeessentials.remote.client.data.UserIdent;
+import com.forgeessentials.remote.client.network.PushChatHandler;
+import com.forgeessentials.remote.client.network.permission.QueryPermissionsHandler;
+import com.forgeessentials.remote.client.network.permission.QueryPermissionsHandler.AreaZone;
+import com.forgeessentials.remote.client.network.permission.QueryPermissionsHandler.WorldZone;
+import com.forgeessentials.remote.client.network.permission.QueryPermissionsHandler.Zone;
+import com.forgeessentials.remote.client.network.QueryPlayerHandler;
 import com.google.gson.JsonElement;
 
 public class Test implements Runnable {
@@ -23,8 +29,8 @@ public class Test implements Runnable {
         // client = RemoteClient.createSslClient("localhost", 27020);
         client = new RemoteClient("localhost", 27020);
         new Thread(this).start();
-        auth = new RequestAuth("ForgeDevName", "pmZGpN");
-        auth = new RequestAuth("a129ebab-93ca-3ac8-86a9-47cce1be86d0", "pmZGpN");
+        auth = new RequestAuth("ForgeDevName", "nChhHK");
+        //auth = new RequestAuth("a129ebab-93ca-3ac8-86a9-47cce1be86d0", "pmZGpN");
     }
 
     @Override
@@ -105,6 +111,43 @@ public class Test implements Runnable {
             }
         }
     }
+    
+    private void printPermissions(Zone z)
+    {
+        System.out.println("zone " + z.id);
+        for (Entry<UserIdent, PermissionList> perms : z.playerPermissions.entrySet())
+        {
+            System.out.println("  player " + perms.getKey().username);
+            for (Entry<String, String> perm : perms.getValue().entrySet())
+                System.out.println("    " + perm.getKey() + " = " + perm.getValue());
+        }
+        for (Entry<String, PermissionList> perms : z.groupPermissions.entrySet())
+        {
+            System.out.println("  group " + perms.getKey());
+            for (Entry<String, String> perm : perms.getValue().entrySet())
+                System.out.println("    " + perm.getKey() + " = " + perm.getValue());
+        }
+    }
+
+    public void queryPermissions()
+    {
+        RemoteResponse<QueryPermissionsHandler.Response> response = client.sendRequestAndWait(new RemoteRequest<>(QueryPermissionsHandler.ID, auth, null),
+                QueryPermissionsHandler.Response.class, 60 * 1000);
+        if (response == null || !response.success)
+        {
+            System.err.println("Error: " + (response == null ? "no response" : response.message));
+        }
+        else
+        {
+            printPermissions(response.data);
+            for (WorldZone wz : response.data.worldZones.values())
+            {
+                printPermissions(wz);
+                for (AreaZone az : wz.areaZones)
+                    printPermissions(az);
+            }
+        }
+    }
 
     public void pushChat(boolean enable)
     {
@@ -134,8 +177,9 @@ public class Test implements Runnable {
         if (main.client.isClosed())
             return;
         main.queryPlayer();
-        main.pushChat(true);
-        // main.close();
+        main.queryPermissions();
+        // main.pushChat(true);
+        main.close();
     }
 
 }
