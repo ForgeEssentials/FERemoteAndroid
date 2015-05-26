@@ -16,6 +16,8 @@ import com.android305.forgeessentialsremote.data.Server;
 import com.android305.forgeessentialsremote.servers.active.fragments.ChatFragment;
 import com.android305.forgeessentialsremote.sqlite.datasources.ChatLogDataSource;
 import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
+import com.forgeessentials.remote.client.RemoteMessageID;
+import com.forgeessentials.remote.client.RemoteRequest;
 
 import java.io.IOException;
 
@@ -101,8 +103,14 @@ public class ActiveServer extends ActionBarActivity implements NavigationDrawerF
     }
 
     @Override
-    public void pushMessage(String message) {
-        //TODO: needs to be implemented in the library
+    public void sendChatMessage(String message) {
+        try {
+            System.out.println(String.format("Sending chat message: %s", message));
+            RemoteRequest<String> request = new RemoteRequest<String>(RemoteMessageID.SEND_CHAT, message);
+            activeServer.getClient().sendRequest(request);
+        } catch (IOException e) {
+            activeServer.disconnect();
+        }
     }
 
     @Override
