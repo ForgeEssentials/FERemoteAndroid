@@ -17,7 +17,7 @@ import com.android305.forgeessentialsremote.sqlite.datasources.ChatLogDataSource
 import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
 import com.forgeessentials.remote.client.RemoteClient;
 import com.forgeessentials.remote.client.RemoteResponse;
-import com.forgeessentials.remote.client.network.PushChatHandler;
+import com.forgeessentials.remote.client.network.chat.PushChatHandler;
 
 import java.io.IOException;
 import java.net.ConnectException;

@@ -20,7 +20,7 @@
     <string name="txt_uuid">UUID</string>
     <string name="txt_hint_uuid">Optional if username supplied</string>
     <string name="txt_token">Token*</string>
-    <string name="txt_hint_token">Password also accepted</string>
+    <string name="txt_hint_token">Remote key</string>
     <string name="txt_token_warn">*-Token will be saved in clear text if no master password set.</string>
     <string name="txt_auto_connect">Auto Connect</string>
     <string name="txt_default">Default Server</string>

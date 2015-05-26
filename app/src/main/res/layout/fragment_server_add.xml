@@ -53,7 +53,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:hint="@string/txt_hint_address"
-                android:id="@+id/ipAddress"/>
+                android:id="@+id/ipAddress"
+                android:inputType="textNoSuggestions" />
 
             <CheckBox
                 android:layout_width="wrap_content"
@@ -79,7 +80,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="textNoSuggestions|text"
                 android:id="@+id/username"/>
         </TableRow>
 
@@ -100,7 +101,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:hint="@string/txt_hint_token"
-                android:id="@+id/token"/>
+                android:id="@+id/token"
+                android:inputType="textNoSuggestions" />
         </TableRow>
 
         <TableRow
@@ -146,12 +148,6 @@
                 android:id="@+id/defaultServer"
                 android:checked="false"/>
         </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/txt_token_warn"
-            android:textStyle="bold"/>
 
     </TableLayout>
 </ScrollView>
