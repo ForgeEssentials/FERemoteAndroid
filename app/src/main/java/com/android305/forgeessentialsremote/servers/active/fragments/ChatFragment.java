@@ -59,8 +59,10 @@ public class ChatFragment extends Fragment {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                    mListener.sendChatMessage(chatMsg.getText().toString());
-                    chatMsg.setText("");
+                    if (chatMsg.getText().length() > 0) {
+                        mListener.sendChatMessage(chatMsg.getText().toString());
+                        chatMsg.setText("");
+                    }
                     return true;
                 }
                 return false;

@@ -13,6 +13,7 @@ import com.android305.forgeessentialsremote.sqlite.SQLDatabaseHelper;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ChatLogDataSource {
@@ -45,16 +46,17 @@ public class ChatLogDataSource {
      * @param msg      message
      * @return identifying log object
      */
-    public ChatLog newChatLog(Server server, String username, String msg) {
-        return newChatLog(server, null, username, msg);
+    public ChatLog newChatLog(Server server, Timestamp timestamp, String username, String msg) {
+        return newChatLog(server, timestamp, null, username, msg);
     }
 
-    public ChatLog newChatLog(Server server, String uuid, String username, String msg) {
+    public ChatLog newChatLog(Server server, Timestamp timestamp, String uuid, String username, String msg) {
         ContentValues values = new ContentValues();
         values.put(SQLDatabaseHelper.CHAT_LOG_SERVERS_ID, server.getId());
         values.put(SQLDatabaseHelper.CHAT_LOG_PLAYER_UUID, uuid);
         values.put(SQLDatabaseHelper.CHAT_LOG_PLAYER_USERNAME, username);
         values.put(SQLDatabaseHelper.CHAT_LOG_MESSAGE, msg);
+        values.put(SQLDatabaseHelper.CHAT_LOG_TIMESTAMP, timestamp.toString());
         long insertId = database.insert(SQLDatabaseHelper.TABLE_CHAT_LOG, null, values);
         Cursor cursor = database.query(SQLDatabaseHelper.TABLE_CHAT_LOG, allColumns,
                 SQLDatabaseHelper.CHAT_LOG_ID + " = " + insertId, null, null, null, null);

@@ -16,12 +16,14 @@ import com.android305.forgeessentialsremote.data.Server;
 import com.android305.forgeessentialsremote.sqlite.datasources.ChatLogDataSource;
 import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
 import com.forgeessentials.remote.client.RemoteClient;
+import com.forgeessentials.remote.RemoteMessageID;
 import com.forgeessentials.remote.client.RemoteResponse;
-import com.forgeessentials.remote.client.network.chat.PushChatHandler;
+import com.forgeessentials.remote.network.ChatResponse;
 
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class FEBackgroundService extends Service {
@@ -84,6 +86,9 @@ public class FEBackgroundService extends Service {
                         RemoteResponse.JsonRemoteResponse response = client.getNextResponse(0);
                         if (response != null) handleResponse(server, client, response);
                     }
+                    Log.w("Server", "Disconnected");
+                    Intent i = new Intent(ActiveServer.CONNECTION_CLOSED);
+                    sendBroadcast(i);
                 }
             }.start();
             server.queryCapabilities();
@@ -150,10 +155,9 @@ public class FEBackgroundService extends Service {
 
     private void handleResponse(Server server, RemoteClient client, RemoteResponse.JsonRemoteResponse response) {
         switch (response.id) {
-            case PushChatHandler.ID: {
-                RemoteResponse<PushChatHandler.Response> r = client.transformResponse(response,
-                        PushChatHandler.Response.class);
-                ChatLog c = chatLogDataSource.newChatLog(server, r.data.username, r.data.message);
+            case RemoteMessageID.CHAT: {
+                RemoteResponse<ChatResponse> r = client.transformResponse(response, ChatResponse.class);
+                ChatLog c = chatLogDataSource.newChatLog(server, new Timestamp(r.data.timestamp.getTime()), r.data.sender, r.data.message);
                 try {
                     Intent i = new Intent(ActiveServer.TASK_PUSH_CHAT);
                     i.putExtra("chatlog.ser", c.serialize());

@@ -16,7 +16,7 @@ import com.android305.forgeessentialsremote.data.Server;
 import com.android305.forgeessentialsremote.servers.active.fragments.ChatFragment;
 import com.android305.forgeessentialsremote.sqlite.datasources.ChatLogDataSource;
 import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
-import com.forgeessentials.remote.client.RemoteMessageID;
+import com.forgeessentials.remote.RemoteMessageID;
 import com.forgeessentials.remote.client.RemoteRequest;
 
 import java.io.IOException;
@@ -24,8 +24,8 @@ import java.io.IOException;
 
 public class ActiveServer extends ActionBarActivity implements NavigationDrawerFragment
         .NavigationDrawerCallbacks, ChatFragment.OnFragmentInteractionListener {
-    public final static String TASK_PUSH_CHAT = "com.android305.forgeesentialsremote" + "" +
-            ".NEW_PUSH_CHAT";
+    public final static String TASK_PUSH_CHAT = "com.android305.forgeesentialsremote.NEW_PUSH_CHAT";
+    public final static String CONNECTION_CLOSED = "com.android305.forgeesentialsremote.CONNECTION_CLOSED";
 
     private final static int SERVER_INFO = 0;
     private final static int PLAYER_LIST = 1;
@@ -106,7 +106,9 @@ public class ActiveServer extends ActionBarActivity implements NavigationDrawerF
     public void sendChatMessage(String message) {
         try {
             System.out.println(String.format("Sending chat message: %s", message));
-            RemoteRequest<String> request = new RemoteRequest<String>(RemoteMessageID.SEND_CHAT, message);
+            System.out.println(String.format("Active server = %s", activeServer.toString()));
+            System.out.println(String.format("Client = %s", activeServer.getClient().toString()));
+            RemoteRequest<String> request = new RemoteRequest<String>(RemoteMessageID.CHAT, message);
             activeServer.getClient().sendRequest(request);
         } catch (IOException e) {
             activeServer.disconnect();
@@ -117,7 +119,9 @@ public class ActiveServer extends ActionBarActivity implements NavigationDrawerF
     protected void onResume() {
         super.onResume();
         if (dataUpdateReceiver == null) dataUpdateReceiver = new DataUpdateReceiver();
-        IntentFilter intentFilter = new IntentFilter(TASK_PUSH_CHAT);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(CONNECTION_CLOSED);
+        intentFilter.addAction(TASK_PUSH_CHAT);
         registerReceiver(dataUpdateReceiver, intentFilter);
     }
 
@@ -131,6 +135,9 @@ public class ActiveServer extends ActionBarActivity implements NavigationDrawerF
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
+                case CONNECTION_CLOSED:
+                    ActiveServer.this.finish();
+                    break;
                 case TASK_PUSH_CHAT:
                     if (loadedChat != null && loadedChat.isVisible()) {
                         if (intent.hasExtra("chatlog.ser")) {

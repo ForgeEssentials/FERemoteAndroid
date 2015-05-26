@@ -10,6 +10,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ChatLog implements Serializable {
 
@@ -36,7 +38,8 @@ public class ChatLog implements Serializable {
     public Spanned getFormattedMessage() {
         //TODO need to implement a better pushchat to get chat format from FE
         //TODO check if user wants a timestamp
-        return Html.fromHtml("[<font size=\"10\">" + timestamp +"</font>][<font color=\"red\">" + username + "</font>] " + message);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        return Html.fromHtml("[<font size=\"10\">" + dateFormat.format(timestamp) +"</font>][<font color=\"red\">" + username + "</font>] " + message);
     }
 
     public int getId() {
