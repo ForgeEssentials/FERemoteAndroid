@@ -104,14 +104,24 @@ public class ActiveServer extends ActionBarActivity implements NavigationDrawerF
 
     @Override
     public void sendChatMessage(String message) {
-        try {
+        if (message.isEmpty())
+            return;
+
+        if (message.startsWith("/"))
+        {
             System.out.println(String.format("Sending chat message: %s", message));
             System.out.println(String.format("Active server = %s", activeServer.toString()));
             System.out.println(String.format("Client = %s", activeServer.getClient().toString()));
+            RemoteRequest<String> request = new RemoteRequest<String>(RemoteMessageID.COMMAND, message.substring(1));
+            activeServer.getClient().sendRequestSafe(request);
+        }
+        else
+        {
+            System.out.println(String.format("Sending command message: %s", message));
+            System.out.println(String.format("Active server = %s", activeServer.toString()));
+            System.out.println(String.format("Client = %s", activeServer.getClient().toString()));
             RemoteRequest<String> request = new RemoteRequest<String>(RemoteMessageID.CHAT, message);
-            activeServer.getClient().sendRequest(request);
-        } catch (IOException e) {
-            activeServer.disconnect();
+            activeServer.getClient().sendRequestSafe(request);
         }
     }
 
