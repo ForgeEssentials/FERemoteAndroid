@@ -23,8 +23,8 @@ public class SQLDatabaseHelper extends SQLiteOpenHelper {
     public static final String CHAT_LOG_ID = "_id";
     public static final String CHAT_LOG_TIMESTAMP = "timestamp";
     public static final String CHAT_LOG_SERVERS_ID = "server_id";
-    public static final String CHAT_LOG_PLAYER_UUID = "uuid";
-    public static final String CHAT_LOG_PLAYER_USERNAME = "username";
+    public static final String CHAT_LOG_SENDER_UUID = "uuid";
+    public static final String CHAT_LOG_SENDER = "sender";
     public static final String CHAT_LOG_MESSAGE = "message";
 
     // Database creation sql statements
@@ -47,13 +47,13 @@ public class SQLDatabaseHelper extends SQLiteOpenHelper {
             + " integer primary key autoincrement, "
             + CHAT_LOG_TIMESTAMP + " datetime default CURRENT_TIMESTAMP, "
             + CHAT_LOG_SERVERS_ID + " int not null, "
-            + CHAT_LOG_PLAYER_UUID + " text, "
-            + CHAT_LOG_PLAYER_USERNAME + " text not null, "
+            + CHAT_LOG_SENDER_UUID + " text, "
+            + CHAT_LOG_SENDER + " text, "
             + CHAT_LOG_MESSAGE + " text);";
     //@formatter:on
 
     private static final String DATABASE_NAME = "feremote.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public SQLDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

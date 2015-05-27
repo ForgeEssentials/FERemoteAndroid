@@ -13,8 +13,8 @@ import com.android305.forgeessentialsremote.sqlite.SQLDatabaseHelper;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class ChatLogDataSource {
 
@@ -23,7 +23,7 @@ public class ChatLogDataSource {
     private SQLDatabaseHelper dbHelper;
     private String[] allColumns = {SQLDatabaseHelper.CHAT_LOG_ID,
             SQLDatabaseHelper.CHAT_LOG_TIMESTAMP, SQLDatabaseHelper.CHAT_LOG_SERVERS_ID,
-            SQLDatabaseHelper.CHAT_LOG_PLAYER_UUID, SQLDatabaseHelper.CHAT_LOG_PLAYER_USERNAME,
+            SQLDatabaseHelper.CHAT_LOG_SENDER_UUID, SQLDatabaseHelper.CHAT_LOG_SENDER,
             SQLDatabaseHelper.CHAT_LOG_MESSAGE};
 
     public ChatLogDataSource(Context context) {
@@ -53,8 +53,8 @@ public class ChatLogDataSource {
     public ChatLog newChatLog(Server server, Timestamp timestamp, String uuid, String username, String msg) {
         ContentValues values = new ContentValues();
         values.put(SQLDatabaseHelper.CHAT_LOG_SERVERS_ID, server.getId());
-        values.put(SQLDatabaseHelper.CHAT_LOG_PLAYER_UUID, uuid);
-        values.put(SQLDatabaseHelper.CHAT_LOG_PLAYER_USERNAME, username);
+        values.put(SQLDatabaseHelper.CHAT_LOG_SENDER_UUID, uuid);
+        values.put(SQLDatabaseHelper.CHAT_LOG_SENDER, username);
         values.put(SQLDatabaseHelper.CHAT_LOG_MESSAGE, msg);
         values.put(SQLDatabaseHelper.CHAT_LOG_TIMESTAMP, timestamp.toString());
         long insertId = database.insert(SQLDatabaseHelper.TABLE_CHAT_LOG, null, values);
@@ -102,8 +102,9 @@ public class ChatLogDataSource {
         chatLog.setId(cursor.getInt(0));
         chatLog.setTimestamp(Timestamp.valueOf(cursor.getString(1)));
         chatLog.setServerId(cursor.getInt(2));
-        chatLog.setUUID(cursor.getString(3));
-        chatLog.setUsername(cursor.getString(4));
+        String uuid = cursor.getString(3);
+        chatLog.setUUID(uuid == null ? null : UUID.fromString(uuid));
+        chatLog.setSender(cursor.getString(4));
         chatLog.setMessage(cursor.getString(5));
         return chatLog;
     }

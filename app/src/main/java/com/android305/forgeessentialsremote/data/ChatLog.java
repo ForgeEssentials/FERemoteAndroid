@@ -12,26 +12,27 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 public class ChatLog implements Serializable {
 
     private int id;
     private Timestamp timestamp;
     private int serverId;
-    private String uuid = null;
-    private String username;
+    private UUID uuid = null;
+    private String sender;
     private String message;
 
     public ChatLog() {
     }
 
-    public ChatLog(int id, Timestamp timestamp, int serverId, String uuid, String username,
+    public ChatLog(int id, Timestamp timestamp, int serverId, String sender, UUID uuid,
                    String message, Server connectedServer) {
         this.id = id;
         this.timestamp = timestamp;
         this.serverId = serverId;
         this.uuid = uuid;
-        this.username = username;
+        this.sender = sender;
         this.message = message;
     }
 
@@ -39,7 +40,10 @@ public class ChatLog implements Serializable {
         //TODO need to implement a better pushchat to get chat format from FE
         //TODO check if user wants a timestamp
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        return Html.fromHtml("[<font size=\"10\">" + dateFormat.format(timestamp) +"</font>][<font color=\"red\">" + username + "</font>] " + message);
+        if (sender == null)
+            return Html.fromHtml("[<font size=\"10\">" + dateFormat.format(timestamp) +"</font>] " + message);
+        else
+            return Html.fromHtml("[<font size=\"10\">" + dateFormat.format(timestamp) +"</font>][<font color=\"red\">" + sender + "</font>] " + message);
     }
 
     public int getId() {
@@ -66,20 +70,20 @@ public class ChatLog implements Serializable {
         this.serverId = serverId;
     }
 
-    public String getUUID() {
+    public UUID getUUID() {
         return uuid;
     }
 
-    public void setUUID(String uuid) {
+    public void setUUID(UUID uuid) {
         this.uuid = uuid;
     }
 
-    public String getUsername() {
-        return username;
+    public String getSender() {
+        return sender;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setSender(String sender) {
+        this.sender = sender;
     }
 
     public String getMessage() {
