@@ -12,8 +12,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 
 import com.android305.forgeessentialsremote.data.ChatLog;
+import com.android305.forgeessentialsremote.data.Player;
 import com.android305.forgeessentialsremote.data.Server;
 import com.android305.forgeessentialsremote.servers.active.fragments.ChatFragment;
+import com.android305.forgeessentialsremote.servers.active.fragments.PlayerListFragment;
 import com.android305.forgeessentialsremote.sqlite.datasources.ChatLogDataSource;
 import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
 import com.forgeessentials.remote.RemoteMessageID;
@@ -23,7 +25,7 @@ import java.io.IOException;
 
 
 public class ActiveServer extends ActionBarActivity implements NavigationDrawerFragment
-        .NavigationDrawerCallbacks, ChatFragment.OnFragmentInteractionListener {
+        .NavigationDrawerCallbacks, ChatFragment.OnFragmentInteractionListener, PlayerListFragment.OnFragmentInteractionListener {
     public final static String TASK_PUSH_CHAT = "com.android305.forgeesentialsremote.NEW_PUSH_CHAT";
     public final static String CONNECTION_CLOSED = "com.android305.forgeesentialsremote.CONNECTION_CLOSED";
 
@@ -73,6 +75,8 @@ public class ActiveServer extends ActionBarActivity implements NavigationDrawerF
                 break;
             case PLAYER_LIST: //Player List
                 loadedChat = null;
+                f = PlayerListFragment.newInstance();
+                tag = "fragment_chat";
                 break;
             case CHAT: //Chat
                 f = ChatFragment.newInstance();
@@ -90,9 +94,6 @@ public class ActiveServer extends ActionBarActivity implements NavigationDrawerF
         if (f != null) {
             fragmentManager.beginTransaction().replace(R.id.container, f, tag).commit();
         }
-        /*fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();*/
     }
 
     @Override
@@ -184,4 +185,13 @@ public class ActiveServer extends ActionBarActivity implements NavigationDrawerF
         super.onDestroy();
     }
 
+    @Override
+    public void onViewCreated(PlayerListFragment plFragment) {
+        //TODO: populate the listview with this method.
+    }
+
+    @Override
+    public void onPlayerClick(Player player) {
+        //TODO: this is what happens when a player is clicked
+    }
 }

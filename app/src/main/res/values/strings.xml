@@ -39,13 +39,6 @@
     <string name="drawer_chat">Chat</string>
     <string name="drawer_console">Console</string>
     <string name="drawer_permissions">Permissions</string>
-    <string name="active_player_name">Username</string>
-    <string name="active_player_uuid">UUID</string>
-    <string name="active_player_health">Health</string>
-    <string name="active_player_armor">Armor</string>
-    <string name="active_player_hunger">Hunger</string>
-    <string name="active_player_saturation">Saturation</string>
-    <string name="active_player_location">Location</string>
 
     <!-- Service -->
 
