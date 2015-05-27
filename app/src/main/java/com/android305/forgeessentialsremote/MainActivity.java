@@ -223,12 +223,9 @@ public class MainActivity extends ActionBarActivity implements ServerListFragmen
                     makeDefault);
             listFragment.refresh();
             fragmentManager.beginTransaction().detach(f).commit();
-            serversDataSource.close();
-        } else {
-            serversDataSource.close();
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
