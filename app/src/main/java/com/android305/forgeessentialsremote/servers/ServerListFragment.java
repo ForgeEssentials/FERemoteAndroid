@@ -29,7 +29,6 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 public class ServerListFragment extends ListFragment implements AdapterView.OnItemLongClickListener {
 
     private ServersDataSource serversDataSource;
-    private FloatingActionsMenu addServerMenu;
 
     private OnFragmentInteractionListener mListener;
 
@@ -69,25 +68,8 @@ public class ServerListFragment extends ListFragment implements AdapterView.OnIt
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemLongClickListener(this);
-
-        addServerMenu = (FloatingActionsMenu) view.findViewById(R.id.add_server_menu);
-        FloatingActionButton button = (FloatingActionButton) view.findViewById(R.id.normal_plus);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addServerMenu.collapse();
-                mListener.onServerAddClicked(false);
-            }
-        });
-
-        FloatingActionButton barcodeButton = (FloatingActionButton) view.findViewById(R.id.barcode_plus);
-        barcodeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addServerMenu.collapse();
-                mListener.onServerAddClicked(true);
-            }
-        });
+        FloatingActionsMenu addServerMenu = (FloatingActionsMenu) view.findViewById(R.id.add_server_menu);
+        mListener.onViewCreated(view, addServerMenu);
         return view;
     }
 
@@ -165,7 +147,7 @@ public class ServerListFragment extends ListFragment implements AdapterView.OnIt
     public interface OnFragmentInteractionListener {
         public void onFragmentInteraction(Server server, boolean longClick);
 
-        public void onServerAddClicked(boolean barcode);
+        public void onViewCreated(View view, FloatingActionsMenu addServerMenu);
 
         public void onAttach(ServerListFragment fragment);
     }

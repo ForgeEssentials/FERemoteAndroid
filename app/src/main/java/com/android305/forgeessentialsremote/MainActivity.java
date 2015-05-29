@@ -22,6 +22,8 @@ import com.android305.forgeessentialsremote.servers.ServerAddFragment;
 import com.android305.forgeessentialsremote.servers.ServerListFragment;
 import com.android305.forgeessentialsremote.service.FEBackgroundService;
 import com.android305.forgeessentialsremote.sqlite.datasources.ServersDataSource;
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -186,6 +188,26 @@ public class MainActivity extends ActionBarActivity implements ServerListFragmen
     }
 
     @Override
+    public void onViewCreated(View view, final FloatingActionsMenu addServerMenu) {
+        FloatingActionButton button = (FloatingActionButton) view.findViewById(R.id.normal_plus);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addServerMenu.collapse();
+                onServerAddClicked(false);
+            }
+        });
+
+        FloatingActionButton barcodeButton = (FloatingActionButton) view.findViewById(R.id.barcode_plus);
+        barcodeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addServerMenu.collapse();
+                onServerAddClicked(true);
+            }
+        });
+    }
+
     public void onServerAddClicked(boolean barcode) {
         if (barcode) {
             IntentIntegrator integrator = new IntentIntegrator(this);
