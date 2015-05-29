@@ -84,7 +84,7 @@ public class ChatLogDataSource {
 
     public List<ChatLog> getChatLogs(Server server) {
         ArrayList<ChatLog> chatLog = new ArrayList<>();
-        Cursor cursor = database.query(SQLDatabaseHelper.TABLE_CHAT_LOG, allColumns, SQLDatabaseHelper.CHAT_LOG_SERVERS_ID + server.getId(), null,
+        Cursor cursor = database.query(SQLDatabaseHelper.TABLE_CHAT_LOG, allColumns, SQLDatabaseHelper.CHAT_LOG_SERVERS_ID + "=" + server.getId(), null,
                 null, null, null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
